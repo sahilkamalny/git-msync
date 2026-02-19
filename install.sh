@@ -49,7 +49,7 @@ if [[ "$OS" == "Darwin" ]]; then
     
     # We create a simple AppleScript application that binds to our script.
     APP_DIR="$REPO_DIR/$APP_NAME"
-    osacompile -o "$APP_DIR" -e "do shell script \"'$SCRIPT_PATH'\""
+    osacompile -o "$APP_DIR" -e "tell application \"Terminal\"" -e "activate" -e "do script \"'$SCRIPT_PATH'\"" -e "end tell"
     
     echo "* Created macOS application at $APP_DIR"
     echo "* You can drag this into your /Applications folder or run via Spotlight."

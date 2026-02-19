@@ -14,7 +14,12 @@ A highly polished, reliable, and OS-aware shell utility to aggressively synchron
 - `bash`
 
 ## Installation
-Ensure you are in the root directory of this repository and simply run the `install.sh` script:
+**For macOS (One-Click):**
+Simply open the folder in Finder and double-click `Install.command`.
+*(To remove it later, double-click `Uninstall.command`)*
+
+**For Linux / Terminal Users:**
+Ensure you are in the root directory and run:
 
 ```bash
 ./install.sh
