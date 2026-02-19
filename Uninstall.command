@@ -1,5 +1,8 @@
 #!/bin/bash
+clear
+echo ""
 echo -e "\033[1;31mUninstalling sync-github...\033[0m"
+echo ""
 
 # Remove symlink
 if [ -L "$HOME/.local/bin/sync-github" ]; then
@@ -13,12 +16,25 @@ if [ -f "$HOME/.local/share/applications/sync-github.desktop" ]; then
     echo "* Removed Linux .desktop application entry"
 fi
 
-# Remove Mac App if exists
+# Remove Mac App if exists in repo dir
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_DIR="$DIR/Sync GitHub.app"
-if [ -d "$APP_DIR" ]; then
-    rm -rf "$APP_DIR"
-    echo "* Removed macOS 'Sync GitHub.app'"
+if [ -d "$DIR/Sync GitHub.app" ]; then
+    rm -rf "$DIR/Sync GitHub.app"
+    echo "* Removed macOS 'Sync GitHub.app' from repository directory"
 fi
 
+# Remove Mac App if user dragged it to system /Applications
+if [ -d "/Applications/Sync GitHub.app" ]; then
+    rm -rf "/Applications/Sync GitHub.app"
+    echo "* Removed macOS 'Sync GitHub.app' from /Applications"
+fi
+
+# Remove Mac App if user dragged it to user ~/Applications
+if [ -d "$HOME/Applications/Sync GitHub.app" ]; then
+    rm -rf "$HOME/Applications/Sync GitHub.app"
+    echo "* Removed macOS 'Sync GitHub.app' from ~/Applications"
+fi
+
+echo ""
 echo -e "\033[1;32m✅ Uninstallation Complete.\033[0m"
+echo ""

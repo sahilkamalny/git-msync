@@ -4,6 +4,7 @@
 # Sync GitHub Repositories - Installer
 # ==========================================
 
+clear
 set -e
 
 # Detect OS
@@ -13,7 +14,9 @@ OS="$(uname -s)"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_PATH="$REPO_DIR/scripts/sync-github.sh"
 
+echo ""
 echo -e "\033[1;36mStarting installation for sync-github...\033[0m"
+echo ""
 
 # 1. Make script executable
 chmod +x "$SCRIPT_PATH"
@@ -77,5 +80,7 @@ EOF
     echo "* Created application shortcut at $DESKTOP_FILE"
 fi
 
+echo ""
 echo -e "\033[1;32m✅ Installation Complete!\033[0m"
 echo "You can now run 'sync-github' from anywhere."
+echo ""

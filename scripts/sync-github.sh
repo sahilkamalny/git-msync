@@ -4,6 +4,8 @@
 # Modern GitHub Repository Sync Utility
 # ==========================================
 
+clear
+
 DEFAULT_DIRS=(
     "$HOME/GitHub"
     "$HOME/Scripts"
@@ -112,9 +114,9 @@ echo ""
 echo -e "${BLUE}🎉  Repository sync complete.${RESET}"
 
 if [[ "$OS" == "Darwin" ]]; then
-    osascript -e 'display notification "Repository sync complete." with title "Sync Repos"'
+    osascript -e 'display notification "GitHub repository sync complete." with title "Sync Repositories"'
 elif [[ "$OS" == "Linux" ]]; then
     if command -v notify-send >/dev/null; then
-        notify-send "Sync Repos" "Repository sync complete."
+        notify-send "Sync Repositories" "GitHub repository sync complete."
     fi
 fi
