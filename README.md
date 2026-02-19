@@ -1,5 +1,9 @@
 # Sync GitHub
 
+![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
+
 A highly polished, reliable, and OS-aware shell utility to aggressively synchronize multiple local GitHub repositories at once.
 
 ## Features
