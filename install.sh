@@ -18,6 +18,56 @@ echo ""
 echo -e "\033[1;36mStarting installation for github-sync...\033[0m"
 echo ""
 
+# ---------- Configuration Prompt ----------
+CONFIG_DIR="$HOME/.config/github-sync"
+CONFIG_FILE="$CONFIG_DIR/config"
+
+mkdir -p "$CONFIG_DIR"
+
+echo -e "\033[1;36mConfigure Repository Paths\033[0m"
+echo "By default, GitHub Sync looks in ~/GitHub, ~/Scripts, and ~/Projects."
+echo "You can specify exactly where your repositories are located."
+echo ""
+
+USER_PATHS=""
+
+if [[ "$OS" == "Darwin" ]]; then
+    # macOS native AppleScript prompt
+    USER_PATHS=$(osascript -e '
+        tell application "System Events"
+            activate
+            set response to display dialog "Enter the absolute paths to your GitHub repository folders (comma separated).\n\nLeave blank to use defaults (~/GitHub, ~/Scripts, ~/Projects)." default answer "" with title "GitHub Sync Configuration"
+            return text returned of response
+        end tell
+    ' 2>/dev/null || echo "")
+elif [[ "$OS" == "Linux" ]]; then
+    # Linux GUI native prompts
+    if command -v zenity >/dev/null; then
+        USER_PATHS=$(zenity --entry --title="GitHub Sync Configuration" --text="Enter the absolute paths to your GitHub repository folders (comma separated).\n\nLeave blank to use defaults (~/GitHub, ~/Scripts, ~/Projects):" 2>/dev/null || echo "")
+    elif command -v kdialog >/dev/null; then
+        USER_PATHS=$(kdialog --inputbox "Enter the absolute paths to your GitHub repository folders (comma separated).\n\nLeave blank to use defaults (~/GitHub, ~/Scripts, ~/Projects):" --title "GitHub Sync Configuration" 2>/dev/null || echo "")
+    else
+        read -p "Enter custom repository paths (comma separated) or press Enter for defaults: " USER_PATHS
+    fi
+fi
+
+if [ -n "$USER_PATHS" ]; then
+    > "$CONFIG_FILE"
+    IFS=',' read -ra PATH_ARRAY <<< "$USER_PATHS"
+    for p in "${PATH_ARRAY[@]}"; do
+        # Trim whitespace
+        p=$(echo "$p" | xargs)
+        if [ -n "$p" ]; then
+            echo "$p" >> "$CONFIG_FILE"
+        fi
+    done
+    echo "* Saved custom paths to $CONFIG_FILE"
+    echo ""
+else
+    echo "* Using default paths."
+    echo ""
+fi
+
 # 1. Make script executable
 chmod +x "$SCRIPT_PATH"
 echo "* Made script executable"

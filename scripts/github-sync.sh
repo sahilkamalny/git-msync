@@ -6,12 +6,32 @@
 
 clear
 
+CONFIG_DIR="$HOME/.config/github-sync"
+CONFIG_FILE="$CONFIG_DIR/config"
+
 DEFAULT_DIRS=(
     "$HOME/GitHub"
     "$HOME/Scripts"
+    "$HOME/Projects"
 )
 
-BASE_DIRS=("${@:-${DEFAULT_DIRS[@]}}")
+CONFIG_DIRS=()
+if [ -f "$CONFIG_FILE" ]; then
+    while IFS= read -r line || [ -n "$line" ]; do
+        [[ -z "$line" || "$line" == \#* ]] && continue
+        # Safely expand tildes in stored configuration paths
+        eval "expanded_path=\"$line\""
+        CONFIG_DIRS+=("$expanded_path")
+    done < "$CONFIG_FILE"
+fi
+
+if [ $# -gt 0 ]; then
+    BASE_DIRS=("$@")
+elif [ "${#CONFIG_DIRS[@]}" -gt 0 ]; then
+    BASE_DIRS=("${CONFIG_DIRS[@]}")
+else
+    BASE_DIRS=("${DEFAULT_DIRS[@]}")
+fi
 
 OS="$(uname -s)"
 

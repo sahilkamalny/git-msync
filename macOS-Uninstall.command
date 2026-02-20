@@ -10,6 +10,12 @@ if [ -L "$HOME/.local/bin/github-sync" ]; then
     echo "* Removed CLI 'github-sync' from ~/.local/bin"
 fi
 
+# Remove Configuration
+if [ -d "$HOME/.config/github-sync" ]; then
+    rm -rf "$HOME/.config/github-sync"
+    echo "* Removed configurations from ~/.config/github-sync"
+fi
+
 # Remove Linux desktop entry
 if [ -f "$HOME/.local/share/applications/github-sync.desktop" ]; then
     rm -f "$HOME/.local/share/applications/github-sync.desktop"

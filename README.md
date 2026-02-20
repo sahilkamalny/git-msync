@@ -46,15 +46,14 @@ Ensure you are in the root directory and run:
 3. Generate a Spotlight-searchable macOS wrapper (`GitHub Sync.app`) or a launcher `.desktop` shortcut on Linux.
 
 ## Usage
-By default, running `github-sync` expects repositories in `~/GitHub` or `~/Scripts`.
+
+By default, the script looks for repositories in `~/GitHub`, `~/Scripts`, and `~/Projects`. 
+
+**Custom Paths & Configuration:**
+During the 1-click installation sequence, a native desktop popup UI will prompt you to enter any custom repository folder paths. These paths will be securely saved into a configuration file. 
+
+Alternatively, you can skip the installer and override configurations on the fly by trailing the parent directories via CLI arguments:
 
 ```bash
-github-sync
-```
-
-**Custom Paths:**
-You can override the default paths on the fly by passing the parent directories as arguments:
-
-```bash
-github-sync ~/Projects ~/Work
+github-sync ~/CustomClientCode ~/SecondaryBackupDrive
 ```
