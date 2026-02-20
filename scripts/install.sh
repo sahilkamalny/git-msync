@@ -265,11 +265,11 @@ WIN_ID=$(osascript -e 'tell application "Terminal" to get id of front window' 2>
 if [ -n "$WIN_ID" ]; then
     nohup bash -c "sleep 0.5; osascript -e 'tell application \"Terminal\" to close (every window whose id is $WIN_ID)'" >/dev/null 2>&1 </dev/null &
 fi
-exit 0
+kill -9 $PPID
 EOF
     chmod +x "$APP_DIR/Contents/Resources/run.sh"
     
-    osacompile -o "$APP_DIR" -e "tell application \"Terminal\"" -e "activate" -e "do script \"'$APP_DIR/Contents/Resources/run.sh'\"" -e "end tell" >/dev/null 2>&1
+    osacompile -o "$APP_DIR" -e "tell application \"Terminal\"" -e "activate" -e "do script \"exec '$APP_DIR/Contents/Resources/run.sh'\"" -e "end tell" >/dev/null 2>&1
     
     if [ -f "/System/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" ]; then
         cp "/System/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" "$APP_DIR/Contents/Resources/applet.icns"
