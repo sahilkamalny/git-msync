@@ -252,7 +252,9 @@ if [[ "$OS" == "Darwin" ]]; then
     APP_NAME="GitHub Sync.app"
     APP_DIR="$REPO_DIR/$APP_NAME"
     
-    mkdir -p "$APP_DIR/Contents/Resources"
+    rm -rf "$APP_DIR"
+    osacompile -o "$APP_DIR" -e "tell application \"Terminal\" to do script \"exec bash \\\"$APP_DIR/Contents/Resources/run.sh\\\"\"" >/dev/null 2>&1
+    
     cat << 'EOF' > "$APP_DIR/Contents/Resources/run.sh"
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -269,7 +271,6 @@ fi
 exit 0
 EOF
     chmod +x "$APP_DIR/Contents/Resources/run.sh"
-    osacompile -o "$APP_DIR" -e "do script \"exec bash \\\"$APP_DIR/Contents/Resources/run.sh\\\"\"" >/dev/null 2>&1
     
     if [ -f "/System/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" ]; then
         cp "/System/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" "$APP_DIR/Contents/Resources/applet.icns"
