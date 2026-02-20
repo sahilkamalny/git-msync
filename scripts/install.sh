@@ -229,9 +229,11 @@ echo -e "\033[1;36m  ⚙️  System Integrations\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
 
-# 1. Make script executable
+# 1. Make scripts executable
 chmod +x "$SCRIPT_PATH"
-echo -e "   \033[1;32m✓\033[0m Core script marked as executable"
+chmod +x "$REPO_DIR/scripts/install.sh"
+chmod +x "$REPO_DIR/scripts/uninstall.sh"
+echo -e "   \033[1;32m✓\033[0m Core scripts marked as executable"
 
 if [ -n "$USER_PATHS" ]; then
     echo -e "   \033[1;32m✓\033[0m Saved configuration to \033[4m~/.config/github-sync/config\033[0m"
