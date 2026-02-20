@@ -14,7 +14,6 @@ OS="$(uname -s)"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT_PATH="$REPO_DIR/scripts/github-sync.sh"
 
-echo ""
 echo -e "\033[1;36mStarting installation for github-sync...\033[0m"
 echo ""
 
@@ -40,16 +39,31 @@ if [[ "$OS" == "Darwin" ]]; then
             repeat with p in userPaths
                 set pathString to pathString & "• " & p & return
             end repeat
-            if pathString is "" then set pathString to "(None selected, will use defaults: ~/GitHub, ~/Projects, ~/Scripts, ~/Repositories)"
+            if pathString is "" then set pathString to "(None selected. The default paths will be used.)"
             
             try
-                set theResult to display dialog "Current Repositories:" & return & return & pathString buttons {"Done", "Clear All", "Add Folder..."} default button "Add Folder..." with title "GitHub Sync Configuration"
+                set theResult to display dialog "Current Repositories:" & return & return & pathString buttons {"Done", "Remove Folder...", "Add Folder..."} default button "Add Folder..." with title "GitHub Sync Configuration"
                 
                 if button returned of theResult is "Add Folder..." then
-                    set newFolder to choose folder with prompt "Select a repository folder:" default location (path to home folder)
-                    set end of userPaths to POSIX path of newFolder
-                else if button returned of theResult is "Clear All" then
-                    set userPaths to {}
+                    set newFolders to choose folder with prompt "Select a repository folder (Hold Command to select multiple):" default location (path to home folder) multiple selections allowed true
+                    repeat with nf in newFolders
+                        set end of userPaths to POSIX path of nf
+                    end repeat
+                else if button returned of theResult is "Remove Folder..." then
+                    if (count of userPaths) > 0 then
+                        set toRemove to choose from list userPaths with prompt "Select folder(s) to remove (Hold Command for multiple):" with multiple selections allowed
+                        if toRemove is not false then
+                            set newUserPaths to {}
+                            repeat with p in userPaths
+                                if p is not in toRemove then
+                                    set end of newUserPaths to p
+                                end if
+                            end repeat
+                            set userPaths to newUserPaths
+                        end if
+                    else
+                        display dialog "There are no folders to remove yet." buttons {"OK"} default button "OK" with title "GitHub Sync Configuration"
+                    end if
                 else if button returned of theResult is "Done" then
                     exit repeat
                 end if
@@ -79,20 +93,48 @@ elif [[ "$OS" == "Linux" ]]; then
                 path_string+="• $p\n"
             done
             if [ -z "$path_string" ]; then
-                path_string="(None selected, will use defaults)"
+                path_string="(None selected. The default paths will be used.)"
             fi
             
-            action=$(zenity --question --title="GitHub Sync Configuration" --text="<b>Current Repositories:</b>\n\n$path_string" --ok-label="Done" --cancel-label="Add Folder..." --extra-button="Clear All" 2>/dev/null)
+            action=$(zenity --question --title="GitHub Sync Configuration" --text="<b>Current Repositories:</b>\n\n$path_string" --ok-label="Done" --cancel-label="Add Folder..." --extra-button="Remove Folder..." 2>/dev/null)
             ret=$?
             
-            if [ "$action" = "Clear All" ]; then
-                user_paths_array=()
+            if [ "$action" = "Remove Folder..." ]; then
+                if [ ${#user_paths_array[@]} -gt 0 ]; then
+                    list_args=()
+                    for p in "${user_paths_array[@]}"; do
+                        list_args+=(FALSE "$p")
+                    done
+                    to_remove=$(zenity --list --checklist --title="Remove Folders" --text="Select folders to remove:" --column="Delete" --column="Repository Path" "${list_args[@]}" --separator="|" 2>/dev/null)
+                    if [ -n "$to_remove" ]; then
+                        IFS='|' read -ra TR_ARR <<< "$to_remove"
+                        new_array=()
+                        for p in "${user_paths_array[@]}"; do
+                            keep=true
+                            for r in "${TR_ARR[@]}"; do
+                                if [ "$p" = "$r" ]; then
+                                    keep=false
+                                    break
+                                fi
+                            done
+                            if $keep; then
+                                new_array+=("$p")
+                            fi
+                        done
+                        user_paths_array=("${new_array[@]}")
+                    fi
+                else
+                    zenity --info --title="GitHub Sync Configuration" --text="No folders to remove yet." 2>/dev/null
+                fi
             elif [ $ret -eq 0 ]; then
                 break # Done
             elif [ $ret -eq 1 ]; then
-                selected=$(zenity --file-selection --directory --title="Select a repo folder" 2>/dev/null)
+                selected=$(zenity --file-selection --directory --multiple --separator="|" --title="Select a repo folder" 2>/dev/null)
                 if [ -n "$selected" ]; then
-                    user_paths_array+=("$selected")
+                    IFS='|' read -ra SEL_ARR <<< "$selected"
+                    for s in "${SEL_ARR[@]}"; do
+                        user_paths_array+=("$s")
+                    done
                 fi
             else
                 break # Window closed
@@ -105,11 +147,10 @@ elif [[ "$OS" == "Linux" ]]; then
                 path_string+="• $p\n"
             done
             if [ -z "$path_string" ]; then
-                path_string="(None selected, will use defaults)"
+                path_string="(None selected. The default paths will be used.)"
             fi
             
-            # Kdialog yesnocancel: 0=Yes(Done), 1=No(Add Folder), 2=Cancel(Clear All), other=closed
-            kdialog --yesnocancel "Current Repositories:\n\n$path_string" --yes-label "Done" --no-label "Add Folder..." --cancel-label "Clear All" --title "GitHub Sync Configuration" 2>/dev/null
+            kdialog --yesnocancel "Current Repositories:\n\n$path_string" --yes-label "Done" --no-label "Add Folder..." --cancel-label "Remove Folder..." --title "GitHub Sync Configuration" 2>/dev/null
             ret=$?
             
             if [ $ret -eq 0 ]; then
@@ -120,7 +161,24 @@ elif [[ "$OS" == "Linux" ]]; then
                     user_paths_array+=("$selected")
                 fi
             elif [ $ret -eq 2 ]; then
-                user_paths_array=()
+                if [ ${#user_paths_array[@]} -gt 0 ]; then
+                    list_args=()
+                    for p in "${user_paths_array[@]}"; do
+                        list_args+=("$p" "$p" "off")
+                    done
+                    to_remove=$(kdialog --checklist "Select folders to remove:" "${list_args[@]}" 2>/dev/null)
+                    if [ -n "$to_remove" ]; then
+                        new_array=()
+                        for p in "${user_paths_array[@]}"; do
+                            if ! echo "$to_remove" | grep -Fq "\"$p\""; then
+                                new_array+=("$p")
+                            fi
+                        done
+                        user_paths_array=("${new_array[@]}")
+                    fi
+                else
+                    kdialog --msgbox "No folders to remove yet." --title "GitHub Sync Configuration" 2>/dev/null
+                fi
             else
                 break
             fi

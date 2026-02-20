@@ -1,6 +1,5 @@
 #!/bin/bash
 clear
-echo ""
 echo -e "\033[1;31mUninstalling github-sync...\033[0m"
 echo ""
 
