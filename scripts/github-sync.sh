@@ -64,7 +64,7 @@ if [ "$total" -eq 0 ]; then
 fi
 
 # ---------- Header ----------
-echo -e "    ${CYAN}Syncing $total repositories concurrently...${RESET}"
+echo -e "    ${CYAN}Syncing $total repositories...${RESET}"
 echo ""
 
 # Arrays to track state (Bash 3 compatible)
@@ -196,9 +196,8 @@ if command -v gh >/dev/null 2>&1; then
         fi
         
         if [[ ! "$clone_choice" =~ ^[Yy]$ ]]; then
-            echo -e "    ${YELLOW}Skipped cloning missing repositories.${RESET}\n"
+            echo -e "    ${YELLOW}×  No repositories cloned.${RESET}\n"
         else
-            echo -e "    ${CYAN}Fetching your repository list from GitHub...${RESET}"
         # Construct an array of local remote URLs (normalized/lowercase)
         local_urls=()
         for repo_dir in "${repos[@]}"; do
@@ -217,8 +216,26 @@ if command -v gh >/dev/null 2>&1; then
             fi
         done
         
-        # Fetch remote repos from GitHub using gh
-        remote_repos=$(gh repo list --limit 1000 --json nameWithOwner,sshUrl --jq '.[] | "\(.nameWithOwner)|\(.sshUrl)"' 2>/dev/null)
+        # Fetch remote repos from GitHub using gh asynchronously with spinner
+        echo "" > /tmp/gh_repo_list.txt
+        gh repo list --limit 1000 --json nameWithOwner,sshUrl --jq '.[] | "\(.nameWithOwner)|\(.sshUrl)"' > /tmp/gh_repo_list.txt 2>/dev/null &
+        gh_pid=$!
+        
+        spinner=( "⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏" )
+        spin_idx=0
+        
+        while kill -0 "$gh_pid" 2>/dev/null; do
+            printf "\r    ${CYAN}%s  Fetching your repository list from GitHub...${RESET}" "${spinner[$spin_idx]}"
+            spin_idx=$(( (spin_idx + 1) % 10 ))
+            sleep 0.1
+        done
+        
+        # Clear the spinner line
+        printf "\r\033[K"
+        echo -e "    ${CYAN}✓  Fetched repository list from GitHub.${RESET}"
+        
+        remote_repos=$(cat /tmp/gh_repo_list.txt)
+        rm -f /tmp/gh_repo_list.txt
         
         missing_repos=()
         missing_urls=()
@@ -417,7 +434,7 @@ if command -v gh >/dev/null 2>&1; then
                 
                 echo -e "\n    ${GREEN}✓  Cloning complete.${RESET}\n"
             else
-                echo -e "\n    ${YELLOW}No repositories cloned.${RESET}\n"
+                echo -e "\n    ${YELLOW}×  No repositories cloned.${RESET}\n"
             fi
         else
             echo -e "\n    ${GREEN}✓  All your remote repositories are already cloned locally.${RESET}\n"
@@ -434,4 +451,4 @@ elif [[ "$OS" == "Linux" ]]; then
     fi
 fi
 
-echo -e "\n    \033[1;36m~ ❯\033[0m \033[3mBuilt with care by Sahil Kamal for the GitHub community.\033[0m\n"
+echo -e "\n    © 2026 Sahil Kamal.\n"

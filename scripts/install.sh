@@ -397,5 +397,5 @@ elif [[ "$OS" == "Linux" ]]; then
     fi
 fi
 
-echo -e "\n    \033[1;36m~ ❯\033[0m \033[3mBuilt with care by Sahil Kamal for the GitHub community.\033[0m"
+echo -e "\n    © 2026 Sahil Kamal."
 echo ""

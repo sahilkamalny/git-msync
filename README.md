@@ -53,7 +53,7 @@ Ensure you are in the root directory and run:
 
 **The installer will automatically:**
 1. Make the core scripts executable.
-2. Link the `github-sync` CLI utility and `ghsync` shorthand to your designated local binaries folder (`~/.local/bin/`).
+2. Link the `github-sync` CLI utility and `ghsync` alias to your designated local binaries folder (`~/.local/bin/`).
 3. Safely configure your active shell environment (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile`) to natively export this folder to your `$PATH`, allowing you to seamlessly invoke the commands globally.
 4. Generate a Spotlight-searchable macOS wrapper (`GitHub Sync.app`) or a launcher `.desktop` shortcut on Linux.
 
@@ -63,7 +63,7 @@ Ensure you are in the root directory and run:
 Once installed, you can trigger the synchronization process anytime by:
 1. Searching for **GitHub Sync** via macOS Spotlight Search (or Launchpad).
 2. Launching **GitHub Sync** from your Linux Desktop application menu.
-3. Typing `github-sync` (or the `ghsync` shorthand) from any directory in your terminal.
+3. Typing `github-sync` (or the `ghsync` command alias) from any directory in your terminal.
 
 By default, the script looks for repositories in `~/GitHub`.
 
@@ -85,4 +85,4 @@ To completely remove the CLI link, desktop application, and wipe your repository
 3. **Terminal:** `./scripts/uninstall.sh`
 
 #
-~ ❯ *Built with care by Sahil Kamal for the GitHub community.*
+~ ❯ *© 2026 Sahil Kamal.*
