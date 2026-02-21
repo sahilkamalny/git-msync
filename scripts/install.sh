@@ -295,7 +295,8 @@ if [ ! -d "$LOCAL_BIN" ]; then
 fi
 
 ln -sf "$SCRIPT_PATH" "$LOCAL_BIN/github-sync"
-echo -e "    \033[1;32m✓\033[0m Linked global CLI command (\033[1mgithub-sync\033[0m)"
+ln -sf "$SCRIPT_PATH" "$LOCAL_BIN/ghsync"
+echo -e "    \033[1;32m✓\033[0m Linked global CLI commands (\033[1mgithub-sync\033[0m, \033[1mghsync\033[0m)"
 
 # 3. Handle OS-specific App Wrappers
 if [[ "$OS" == "Darwin" ]]; then
@@ -379,7 +380,7 @@ echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━�
 echo -e "\033[1;32m  ✅ Installation Complete!\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
-echo -e "    You can now launch it by typing \033[1;36mgithub-sync\033[0m in your terminal,"
+echo -e "    You can now launch it by typing \033[1;36mghsync\033[0m or \033[1;36mgithub-sync\033[0m in your terminal,"
 if [[ "$OS" == "Darwin" ]]; then
     echo -e "    or by double-clicking \033[1mGitHub Sync.app\033[0m in this folder,"
     echo -e "    or by finding it via Spotlight Search/Launchpad."
