@@ -258,7 +258,7 @@ echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 if [ -f "$HOME/.local/bin/github-sync" ]; then
-    echo -e "    \033[1;33mGitHub Sync is already installed. Updating existing installation...\033[0m"
+    echo -e "    \033[1;33m■  GitHub Sync is already installed. Updating existing installation...\033[0m"
     ACTION_STR="Updated"
 else
     echo -e "    \033[3mConfiguration saved. Preparing your synchronization environment...\033[0m"
@@ -282,7 +282,7 @@ if [ -n "$USER_PATHS" ]; then
         fi
     done
 else
-    echo -e "    \033[1;34m○\033[0m ~/GitHub"
+    echo -e "    \033[1;34m○\033[0m $HOME/GitHub"
     echo ""
     echo -e "    \033[1;30m(Using Default Configuration)\033[0m"
     > "$CONFIG_FILE"
@@ -343,7 +343,7 @@ EOF
         cp "/System/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" "$APP_DIR/Contents/Resources/applet.icns"
         touch "$APP_DIR"
     fi
-    echo -e "    \033[1;32m✓\033[0m ${ACTION_STR} macOS App (\033[4mGitHub Sync.app\033[0m)"
+    echo -e "    \033[1;32m✓\033[0m ${ACTION_STR} macOS App (\033[1;4;37mGitHub Sync.app\033[0m)"
 
 elif [[ "$OS" == "Linux" ]]; then
     DESKTOP_ENTRY_DIR="$HOME/.local/share/applications"
@@ -404,9 +404,9 @@ echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━�
 echo -e "\033[1;32m  ✅ Installation Complete!\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
-echo -e "    You can now launch it by typing \033[1;36mghsync\033[0m or \033[1;36mgithub-sync\033[0m in your terminal,"
+echo -e "    You can now launch it by typing \033[1;36mgithub-sync\033[0m or \033[1;36mghsync\033[0m in your terminal,"
 if [[ "$OS" == "Darwin" ]]; then
-    echo -e "    or by double-clicking \033[1mGitHub Sync.app\033[0m in this folder,"
+    echo -e "    or by double-clicking \033[1;4;36mGitHub Sync.app\033[0m in this folder,"
     echo -e "    or by finding it via Spotlight Search/Launchpad."
 elif [[ "$OS" == "Linux" ]]; then
     echo -e "    or by launching it from your Linux application menu."

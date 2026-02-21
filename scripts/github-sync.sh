@@ -10,7 +10,7 @@ CONFIG_DIR="$HOME/.config/github-sync"
 CONFIG_FILE="$CONFIG_DIR/config"
 
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\033[1;36m  🔄 GitHub Sync\033[0m"
+echo -e "\033[1;36m  ⇄ GitHub Sync\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
 
@@ -205,7 +205,7 @@ if command -v gh >/dev/null 2>&1; then
         fi
         
         if [[ ! "$clone_choice" =~ ^[Yy]$ ]]; then
-            echo -e "    ${YELLOW}×  No repositories cloned.${RESET}\n"
+            echo -e "    ${YELLOW}■  No repositories cloned.${RESET}\n"
         else
         # Construct an array of local remote URLs (normalized/lowercase)
         local_urls=()
@@ -451,7 +451,7 @@ if command -v gh >/dev/null 2>&1; then
                 
                 echo -e "\n    ${GREEN}✓  Cloning complete.${RESET}\n"
             else
-                echo -e "\n    ${YELLOW}×  No repositories cloned.${RESET}\n"
+                echo -e "\n    ${YELLOW}■  No repositories cloned.${RESET}\n"
             fi
         else
             echo -e "\n    ${GREEN}✓  All your remote repositories are already cloned locally.${RESET}\n"
