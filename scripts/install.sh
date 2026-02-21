@@ -27,8 +27,16 @@ echo ""
 
 USER_PATHS=""
 
-if [[ "$OS" == "Darwin" ]]; then
-    # macOS native AppleScript stateful menu loop
+HAS_GUI=0
+if [[ "$OS" == "Darwin" ]] && [ -z "$SSH_CLIENT" ] && [ -z "$SSH_TTY" ]; then
+    HAS_GUI=1
+elif [[ "$OS" == "Linux" ]] && { [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; }; then
+    HAS_GUI=1
+fi
+
+if [ "$HAS_GUI" -eq 1 ]; then
+    if [[ "$OS" == "Darwin" ]]; then
+        # macOS native AppleScript stateful menu loop
     USER_PATHS=$(osascript -e '
         set userPaths to {}
         repeat
@@ -80,9 +88,9 @@ if [[ "$OS" == "Darwin" ]]; then
             return ""
         end if
     ' 2>/dev/null || echo "")
-elif [[ "$OS" == "Linux" ]]; then
-    # Linux GUI native stateful menu loop
-    user_paths_array=()
+    elif [[ "$OS" == "Linux" ]]; then
+        # Linux GUI native stateful menu loop
+        user_paths_array=()
     if command -v zenity >/dev/null; then
         while true; do
             path_string=""
@@ -181,13 +189,18 @@ elif [[ "$OS" == "Linux" ]]; then
             fi
         done
     else
-        read -p "Enter custom repository paths (comma separated) or press Enter for defaults: " USER_PATHS
+        HAS_GUI=0
     fi
     
     # Rebuild USER_PATHS from array for Linux
     if [ ${#user_paths_array[@]} -gt 0 ]; then
         USER_PATHS=$(IFS=,; echo "${user_paths_array[*]}")
     fi
+fi
+fi
+
+if [ "$HAS_GUI" -eq 0 ]; then
+    read -p "    Enter custom repository paths (comma separated) or press Enter for defaults: " USER_PATHS
 fi
 
 if [ -n "$USER_PATHS" ]; then
