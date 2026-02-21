@@ -8,6 +8,13 @@ echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━�
 echo -e "\033[1;31m  🗑️  GitHub Sync Uninstaller\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
+
+if [ ! -f "$HOME/.local/bin/github-sync" ] && [ ! -d "$HOME/.config/github-sync" ]; then
+    echo -e "    \033[1;33mℹ️  GitHub Sync is not currently installed on this system.\033[0m"
+    echo ""
+    exit 0
+fi
+
 echo -e "    \033[3mPlease interact with the configuration pop-up...\033[0m"
 
 # Native Uninstallation Confirmation
@@ -42,7 +49,7 @@ elif [[ "$OS" == "Linux" ]]; then
             exit 0
         fi
     else
-        read -p "Are you sure you want to uninstall GitHub Sync? (y/N) " confirm
+        read -p "Are you sure you want to uninstall GitHub Sync? (y/n) " confirm
         if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
             echo -e "    \n\033[1;33mUninstallation cancelled.\033[0m"
             echo ""
