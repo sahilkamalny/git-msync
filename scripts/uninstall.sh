@@ -29,7 +29,7 @@ if [[ "$OS" == "Darwin" ]]; then
     ' 2>/dev/null)
     
     if [ "$response" != "Uninstall" ]; then
-        echo -e "    \n\033[1;33mUninstallation cancelled.\033[0m"
+        echo -e "\n    \033[1;33mUninstallation cancelled.\033[0m"
         echo ""
         exit 0
     fi
@@ -37,21 +37,21 @@ elif [[ "$OS" == "Linux" ]]; then
     if command -v zenity >/dev/null; then
         zenity --question --title="GitHub Sync Uninstaller" --text="Are you sure you want to completely uninstall GitHub Sync?\n\nThis will remove the CLI command, background configurations, and the desktop application." --ok-label="Uninstall" --cancel-label="Cancel" --icon-name=dialog-warning 2>/dev/null
         if [ $? -ne 0 ]; then
-            echo -e "    \n\033[1;33mUninstallation cancelled.\033[0m"
+            echo -e "\n    \033[1;33mUninstallation cancelled.\033[0m"
             echo ""
             exit 0
         fi
     elif command -v kdialog >/dev/null; then
         kdialog --warningcontinuecancel "Are you sure you want to completely uninstall GitHub Sync?\n\nThis will remove the CLI command, background configurations, and the desktop application." --title "GitHub Sync Uninstaller" --continue-label "Uninstall" 2>/dev/null
         if [ $? -ne 0 ]; then
-            echo -e "    \n\033[1;33mUninstallation cancelled.\033[0m"
+            echo -e "\n    \033[1;33mUninstallation cancelled.\033[0m"
             echo ""
             exit 0
         fi
     else
         read -p "Are you sure you want to uninstall GitHub Sync? (y/n) " confirm
         if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-            echo -e "    \n\033[1;33mUninstallation cancelled.\033[0m"
+            echo -e "\n    \033[1;33mUninstallation cancelled.\033[0m"
             echo ""
             exit 0
         fi
