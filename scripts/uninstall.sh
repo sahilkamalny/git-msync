@@ -9,7 +9,7 @@ echo -e "\033[1;31m  🗑️  GitHub Sync Uninstaller\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
 
-if [ ! -f "$HOME/.local/bin/github-sync" ] && [ ! -d "$HOME/.config/github-sync" ]; then
+if [ ! -f "$HOME/.local/bin/github-sync" ] && [ ! -f "$HOME/.local/bin/ghsync" ] && [ ! -d "$HOME/.config/github-sync" ]; then
     echo -e "    \033[1;33m×  GitHub Sync is not currently installed on this system.\033[0m"
     echo -e "\n\n    ©  2026 Sahil Kamal."
     echo ""
@@ -93,9 +93,10 @@ echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Remove symlink
-if [ -L "$HOME/.local/bin/github-sync" ]; then
+if [ -L "$HOME/.local/bin/github-sync" ] || [ -L "$HOME/.local/bin/ghsync" ]; then
     rm -f "$HOME/.local/bin/github-sync"
-    echo -e "    \033[1;32m✓\033[0m Removed CLI command (\033[4m~/.local/bin/github-sync\033[0m)"
+    rm -f "$HOME/.local/bin/ghsync"
+    echo -e "    \033[1;32m✓\033[0m Removed CLI commands (\033[4m~/.local/bin/github-sync\033[0m, \033[4m~/.local/bin/ghsync\033[0m)"
 fi
 
 if grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.zshrc" 2>/dev/null; then
