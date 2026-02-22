@@ -59,7 +59,7 @@ To detect and clone GitHub repos not yet on your local machine, the GitHub CLI (
 # Install (choose your platform)
 brew install gh                              # macOS
 sudo apt install gh                          # Debian / Ubuntu
-winget install --id GitHub.cli              # Windows
+winget install --id GitHub.cli               # Windows
 
 # Authenticate
 gh auth login
