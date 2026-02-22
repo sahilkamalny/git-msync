@@ -6,7 +6,7 @@
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
 
 <div align="center">
-  <img src="demo.gif" alt="GitHub Sync Terminal Recording" width="800">
+  <img src="assets/demo.gif" alt="GitHub Sync Terminal Recording" width="800">
 </div>
 
 

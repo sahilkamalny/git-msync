@@ -204,7 +204,7 @@ if command -v gh >/dev/null 2>&1; then
             echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
             echo -e "${CYAN}  ❏  Missing Repositories${RESET}"
             echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
-            printf "\n    ${CYAN}Would you like to check for and clone missing remote repositories? (y/n): ${RESET}"
+            printf "\n    ${CYAN}Would you like to clone missing remote repositories? (y/n): ${RESET}"
             read -r clone_choice
             echo ""
         fi
