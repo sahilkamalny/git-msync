@@ -1,4 +1,4 @@
-# GitHub Sync
+#☯︎ GitHub Sync
 
 ![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
@@ -51,13 +51,13 @@ Once generated, you will need to link it to your GitHub account:
 *(For advanced troubleshooting or managing the ssh-agent, refer to GitHub's [official SSH generation guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).)*
 
 ## Installation
-**For macOS (Double-Click):**
+**macOS**
 Open this folder in your file manager and double-click `macOS-Install.command`.
 
-**For Linux Desktop (Double-Click):**
+**Linux:**
 Open this folder in your file manager and double-click `Linux-Install.sh`.
 
-**Terminal Users (All OS):**
+**Terminal:**
 Ensure you are in the root directory and run:
 
 ```bash
