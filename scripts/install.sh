@@ -235,27 +235,20 @@ fi
 
 if [ "$HAS_GUI" -eq 0 ]; then
     if [ -n "$USER_PATHS" ]; then
-        read -p "$(echo -e "    ${CYAN}Enter custom repository paths (comma separated) or press Enter to keep current: ${RESET}")" input_paths
+        printf "    ${CYAN}Enter comma separated repository paths: ${RESET}"
+        read -r input_paths
         if [ -n "$input_paths" ]; then
             USER_PATHS="$input_paths"
         fi
     else
-        read -p "$(echo -e "    ${CYAN}Enter custom repository paths (comma separated) or press Enter for defaults: ${RESET}")" USER_PATHS
+        printf "    ${CYAN}Enter comma separated repository paths: ${RESET}"
+        read -r USER_PATHS
     fi
 fi
 
-if [ -n "$USER_PATHS" ]; then
-    # Clear the holding screen for the final result output
-    printf '\033[2J\033[3J\033[H'
-else
-    # Delay clear just for logic flow
-    printf '\033[2J\033[3J\033[H'
+if [ "$HAS_GUI" -eq 0 ]; then
+    echo ""
 fi
-
-echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\033[1;36m  ☯︎  GitHub Sync Installer\033[0m"
-echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo ""
 
 if [ -f "$HOME/.local/bin/github-sync" ]; then
     echo -e "    Configuration saved. Updating \033[1;36mGitHub Sync\033[0m..."

@@ -10,7 +10,7 @@ echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 if [ ! -f "$HOME/.local/bin/github-sync" ] && [ ! -f "$HOME/.local/bin/ghsync" ] && [ ! -d "$HOME/.config/github-sync" ]; then
-    echo -e "    \033[1;33m△  GitHub Sync is not currently installed on this system.\033[0m"
+    echo -e "    \033[1;33mGitHub Sync is not currently installed on this system.\033[0m"
     echo -e "\n\n    ©  2026 Sahil Kamal"
     echo ""
     exit 0
@@ -54,6 +54,7 @@ if [ "$HAS_GUI" -eq 1 ]; then
         echo -e "\n\n    ©  2026 Sahil Kamal\n"
         exit 0
     fi
+    echo -ne "\r\033[K"
 elif [[ "$OS" == "Linux" ]]; then
     if command -v zenity >/dev/null; then
         echo -ne "    \033[3mPlease interact with the pop-up...\033[0m"
@@ -63,6 +64,7 @@ elif [[ "$OS" == "Linux" ]]; then
             echo -e "\n\n    ©  2026 Sahil Kamal\n"
             exit 0
         fi
+        echo -ne "\r\033[K"
     elif command -v kdialog >/dev/null; then
         echo -ne "    \033[3mPlease interact with the pop-up...\033[0m"
         kdialog --warningcontinuecancel "Are you sure you want to completely uninstall GitHub Sync?\n\nThis will remove the CLI command, background configurations, and the desktop application." --title "GitHub Sync Uninstaller" --continue-label "Uninstall" 2>/dev/null
@@ -71,6 +73,7 @@ elif [[ "$OS" == "Linux" ]]; then
             echo -e "\n\n    ©  2026 Sahil Kamal\n"
             exit 0
         fi
+        echo -ne "\r\033[K"
         else
             HAS_GUI=0
         fi
@@ -78,19 +81,15 @@ elif [[ "$OS" == "Linux" ]]; then
 fi
 
 if [ "$HAS_GUI" -eq 0 ]; then
-    read -p "$(echo -e "    ${CYAN}Are you sure you want to uninstall GitHub Sync? (y/n) ${RESET}")" confirm
+    printf "    ${CYAN}Are you sure you want to uninstall GitHub Sync? (y/n): ${RESET}"
+    read -r confirm
     if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
         echo -e "\n    \033[1;33mUninstallation cancelled.\033[0m"
         echo ""
         exit 0
     fi
+    echo ""
 fi
-
-printf '\033[2J\033[3J\033[H'
-echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\033[1;31m  ☯︎  GitHub Sync Uninstaller\033[0m"
-echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo ""
 
 # Remove symlink
 if [ -L "$HOME/.local/bin/github-sync" ] || [ -L "$HOME/.local/bin/ghsync" ]; then
@@ -170,7 +169,7 @@ echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━�
 echo -e "\033[1;32m  ✓  Uninstallation Complete.\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
-echo -e "    \033[1;36mGitHub Sync\033[0m has been successfully uninstalled."
+echo -e "    \033[1;34mGitHub Sync has been successfully uninstalled.\033[0m"
 echo ""
 
 if [[ "$OS" == "Darwin" ]]; then

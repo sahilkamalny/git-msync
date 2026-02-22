@@ -6,10 +6,7 @@
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
 
 <div align="center">
-  <!-- TODO: Insert an animated GIF or screenshot of the terminal here! -->
-  <br>
-  <i>(Placeholder for a hero GIF/Screenshot of the Application)</i>
-  <br><br>
+  <img src="demo.gif" alt="GitHub Sync Terminal Recording" width="800">
 </div>
 
 Cross-platform Git repository synchronizer with Bash and Powershell backends. Built for macOS, Linux, and Windows.
