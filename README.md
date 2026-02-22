@@ -2,9 +2,28 @@
 
 ![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
 
+<div align="center">
+  <!-- TODO: Insert an animated GIF or screenshot of the terminal here! -->
+  <br>
+  <i>(Placeholder for a hero GIF/Screenshot of the Application)</i>
+  <br><br>
+</div>
+
 Cross-platform Git repository synchronizer with Bash and Powershell backends. Built for macOS, Linux, and Windows.
+
+## Table of Contents
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+  - [Optional: Cloning Missing Repositories](#optional-cloning-missing-repositories)
+  - [SSH Configuration Required](#ssh-configuration-required)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Uninstallation](#uninstallation)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 - **Parallel Fetching:** Iterates and pulls repositories concurrently, falling back gracefully if errors occur.
@@ -14,24 +33,30 @@ Cross-platform Git repository synchronizer with Bash and Powershell backends. Bu
 - **Auto SSH Upgrades:** Dynamically detects and upgrades standard `https://` remotes to `git@github.com:` SSH remotes, bypassing strict token authentication limits and avoiding hardcoded usernames.
 - **Clean, Animated UI:** Provides a beautiful, easy-to-read progress spinner and sequentially resolves concurrent background jobs for a premium terminal experience.
 
-## Requirements
+## Prerequisites
 - `git`
-- `bash`
+- `bash` (or Git Bash for Windows)
 
 ### Optional: Cloning Missing Repositories
 This utility allows you to seamlessly detect and clone repositories you own on GitHub that are missing from your local machine. Because this action taps into your GitHub account directly, it strictly requires the official **GitHub CLI (`gh`)** to be installed and authenticated.
 
-1. **Install `gh`:** Follow the [official installation instructions](https://cli.github.com/manual/installation) for your OS (e.g. `brew install gh` on macOS, or `sudo apt install gh` on Debian/Ubuntu).
+1. **Install `gh`:** Follow the [official installation instructions](https://cli.github.com/manual/installation) for your OS (e.g., `brew install gh` on macOS, `sudo apt install gh` on Debian/Ubuntu, or `winget install --id GitHub.cli` on Windows).
 2. **Authenticate:** Open your terminal and run the following command to securely link your machine:
    
    ```bash
    gh auth login
    ```
    
-4. Follow the interactive prompts to log in via your web browser. Once finished, this utility will automatically discover your account on its next run and offer a GUI or Terminal prompt to clone any missing repositories!
+3. Follow the interactive prompts to log in via your web browser. Once finished, this utility will automatically discover your account on its next run and offer a GUI or Terminal prompt to clone any missing repositories!
 
 ### SSH Configuration Required
-Because this utility dynamically upgrades all remotes to secure SSH connections (as noted in Features), **you must have a GitHub SSH Key configured on your machine.**
+
+> [!IMPORTANT]
+> Because this utility dynamically upgrades all remotes to secure SSH connections (as noted in Features), **you must have a GitHub SSH Key configured on your machine.**
+
+<details>
+<summary><b>Click to expand SSH Key Setup Instructions</b></summary>
+<br>
 
 If you do not have an SSH key set up, you can generate one quickly. Open your terminal (or Git Bash on Windows) and run this universal command:
 
@@ -50,12 +75,18 @@ Once generated, you will need to link it to your GitHub account:
 
 *(For advanced troubleshooting or managing the ssh-agent, refer to GitHub's [official SSH generation guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).)*
 
+</details>
+
 ## Installation
-**macOS**
+
+**macOS:**
 Open this folder in your file manager and double-click `macOS-Install.command`.
 
 **Linux:**
 Open this folder in your file manager and double-click `Linux-Install.sh`.
+
+**Windows:**
+*(Install scripts specific to Windows/PowerShell coming soon. For now, try running the generic install script via Git Bash or WSL).*
 
 **Terminal:**
 Ensure you are in the root directory and run:
@@ -64,11 +95,12 @@ Ensure you are in the root directory and run:
 ./scripts/install.sh
 ```
 
-**The installer will automatically:**
-1. Make the core scripts executable.
-2. Link the `github-sync` CLI utility and `ghsync` alias to your designated local binaries folder (`~/.local/bin/`).
-3. Safely configure your active shell environment (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile`) to natively export this folder to your `$PATH`, allowing you to seamlessly invoke the commands globally.
-4. Generate a Spotlight-searchable macOS wrapper (`GitHub Sync.app`) or a launcher `.desktop` shortcut on Linux.
+> [!NOTE]
+> **The installer will automatically:**
+> 1. Make the core scripts executable.
+> 2. Link the `github-sync` CLI utility and `ghsync` alias to your designated local binaries folder (`~/.local/bin/`).
+> 3. Safely configure your active shell environment (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile`) to natively export this folder to your `$PATH`, allowing you to seamlessly invoke the commands globally.
+> 4. Generate a Spotlight-searchable macOS wrapper (`GitHub Sync.app`) or a launcher `.desktop` shortcut on Linux.
 
 ## Usage
 
@@ -103,7 +135,14 @@ To completely remove the CLI link, desktop application, and wipe your repository
 
 1. **macOS:** Double-click `macOS-Uninstall.command`
 2. **Linux:** Double-click `Linux-Uninstall.sh`
-3. **Terminal:** `./scripts/uninstall.sh`
+3. **Windows:** *(Ensure any custom paths/wrappers are removed via Git Bash or WSL).*
+4. **Terminal:** `./scripts/uninstall.sh`
+
+## Contributing
+Pull requests are welcome! If you find any bugs or have feature requests, feel free to open an issue to improve the project.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 #
 *© 2026 Sahil Kamal*
