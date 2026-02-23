@@ -8,6 +8,7 @@ printf '\033[2J\033[3J\033[H'
 
 # Detect OS
 OS="$(uname -s)"
+SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 print_box() {
     local title="$1"
@@ -25,7 +26,12 @@ print_box() {
 print_box "➢  GitHub Multi-Sync Uninstaller" "\033[1;34m" "\033[1;31m"
 echo ""
 
-if [ ! -f "$HOME/.local/bin/gh-msync" ] && [ ! -d "$HOME/.config/gh-msync" ]; then
+HAS_INSTALL_ARTIFACT=0
+if [ -L "$HOME/.local/bin/gh-msync" ] || [ -f "$HOME/.local/bin/gh-msync" ] || [ -d "$HOME/.config/gh-msync" ] || [ -f "$HOME/.local/share/applications/gh-msync.desktop" ] || [ -f "$HOME/Desktop/gh-msync.desktop" ] || [ -d "$SCRIPT_ROOT/GitHub Multi-Sync.app" ] || [ -d "/Applications/GitHub Multi-Sync.app" ] || [ -d "$HOME/Applications/GitHub Multi-Sync.app" ] || [ -d "$HOME/Desktop/GitHub Multi-Sync.app" ] || [ -d "$SCRIPT_ROOT/GitHub Multi-Sync" ]; then
+    HAS_INSTALL_ARTIFACT=1
+fi
+
+if [ "$HAS_INSTALL_ARTIFACT" -eq 0 ]; then
     echo -e "    \033[1;33mGitHub Multi-Sync is not currently installed on this system.\033[0m"
     echo -e "\n\n    ©  2026 Sahil Kamal"
     echo ""
@@ -143,9 +149,8 @@ if [ -f "$HOME/.local/share/applications/gh-msync.desktop" ]; then
 fi
 
 # Remove Mac App if exists in repo dir
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [ -d "$DIR/GitHub Multi-Sync.app" ]; then
-    rm -rf "$DIR/GitHub Multi-Sync.app"
+if [ -d "$SCRIPT_ROOT/GitHub Multi-Sync.app" ]; then
+    rm -rf "$SCRIPT_ROOT/GitHub Multi-Sync.app"
     echo -e "    \033[1;31m∘\033[0m Removed macOS App (\033[4mGitHub Multi-Sync.app\033[0m)"
 fi
 
@@ -174,8 +179,8 @@ if [ -f "$HOME/Desktop/gh-msync.desktop" ]; then
 fi
 
 # Remove legacy data dir if exists in repo dir
-if [ -d "$DIR/GitHub Multi-Sync" ]; then
-    rm -rf "$DIR/GitHub Multi-Sync"
+if [ -d "$SCRIPT_ROOT/GitHub Multi-Sync" ]; then
+    rm -rf "$SCRIPT_ROOT/GitHub Multi-Sync"
     echo -e "    \033[1;31m∘\033[0m Removed legacy directory (\033[4mGitHub Multi-Sync\033[0m)"
 fi
 
@@ -186,7 +191,7 @@ echo -e "    \033[1;34mGitHub Multi-Sync has been successfully uninstalled.\033[
 echo ""
 
 if [[ "$OS" == "Darwin" ]]; then
-    osascript -e 'display notification "Uninstallation complete. All configurations and files have been removed." with title "GitHub Multi-Sync"'
+    osascript -e 'display notification "Uninstallation complete. All configurations and files have been removed." with title "GitHub Multi-Sync"' >/dev/null 2>&1 || true
 elif [[ "$OS" == "Linux" ]]; then
     if command -v notify-send >/dev/null; then
         notify-send "GitHub Multi-Sync" "Uninstallation complete. All configurations and files have been removed."

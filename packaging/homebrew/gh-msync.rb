@@ -10,7 +10,6 @@ class GhMsync < Formula
   license "MIT"
 
   depends_on "git"
-  depends_on "gh"
 
   def install
     bin.install "scripts/gh-msync" => "gh-msync"
@@ -27,53 +26,6 @@ class GhMsync < Formula
     File.write(config_file, "~/GitHub\n")
   end
 
-  def uninstall
-    home = Dir.home
-    path_line = 'export PATH="$HOME/.local/bin:$PATH"'
-
-    # Config directory
-    config_dir = File.join(home, ".config", "gh-msync")
-    FileUtils.rm_rf config_dir if File.directory?(config_dir)
-
-    # ~/.local/bin symlink/binary (from-source installs)
-    local_bin = File.join(home, ".local", "bin", "gh-msync")
-    FileUtils.rm_f local_bin if File.exist?(local_bin)
-
-    # PATH line from shell rc files
-    %w[.zshrc .bash_profile .bashrc .profile].each do |rc|
-      rc_path = File.join(home, rc)
-      next unless File.file?(rc_path)
-
-      lines = File.readlines(rc_path)
-      new_lines = lines.reject { |l| l.include?(path_line) }
-      next if lines == new_lines
-
-      File.write(rc_path, new_lines.join)
-    end
-
-    # macOS app (standard locations only; repo path unknown here)
-    app_name = "GitHub Multi-Sync.app"
-    [
-      "/Applications/#{app_name}",
-      File.join(home, "Applications", app_name),
-      File.join(home, "Desktop", app_name)
-    ].each do |path|
-      FileUtils.rm_rf path if File.directory?(path)
-    end
-
-    # Linux desktop entry
-    [
-      File.join(home, ".local", "share", "applications", "gh-msync.desktop"),
-      File.join(home, "Desktop", "gh-msync.desktop")
-    ].each do |path|
-      FileUtils.rm_f path if File.exist?(path)
-    end
-
-    # Legacy directory (if created in home or common location)
-    legacy_dir = File.join(home, "GitHub Multi-Sync")
-    FileUtils.rm_rf legacy_dir if File.directory?(legacy_dir)
-  end
-
   caveats <<~EOS
     Run directly:
       gh-msync
@@ -82,9 +34,21 @@ class GhMsync < Formula
       gh-msync --configure
       gh-msync --configure --cli   # terminal prompts only
 
-    Optional: install as a GitHub CLI extension:
+    Optional: install GitHub CLI for missing-repo cloning and extension mode:
+      brew install gh
+      gh auth login
+
+    Optional: install as a GitHub CLI extension (requires `gh`):
       gh extension install sahilkamalny/gh-msync
       gh msync
+
+    Optional manual cleanup after `brew uninstall gh-msync`:
+      rm -rf ~/.config/gh-msync
+      rm -f ~/.local/bin/gh-msync
+      rm -rf "/Applications/GitHub Multi-Sync.app" "$HOME/Applications/GitHub Multi-Sync.app" "$HOME/Desktop/GitHub Multi-Sync.app"
+      rm -f "$HOME/.local/share/applications/gh-msync.desktop" "$HOME/Desktop/gh-msync.desktop"
+      # If you previously added PATH manually, remove this line from your shell rc files:
+      #   export PATH="$HOME/.local/bin:$PATH"
 
     You can also edit ~/.config/gh-msync/config (one path per line)
     or pass paths on the command line: gh-msync ~/GitHub ~/Projects

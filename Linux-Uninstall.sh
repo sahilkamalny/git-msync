@@ -14,20 +14,30 @@ run_in_terminal() {
     if [ ${#quoted_args[@]} -gt 0 ]; then
         script_cmd+=" ${quoted_args[*]}"
     fi
-    local launch_cmd="$script_cmd; read -r -p 'Press [Enter] to close...'"
+
+    local launcher
+    launcher="$(mktemp "${TMPDIR:-/tmp}/gh-msync-uninstall.XXXXXX")"
+    cat > "$launcher" <<EOF
+#!/bin/bash
+$script_cmd
+read -r -p 'Press [Enter] to close...'
+rm -f -- "$launcher"
+EOF
+    chmod +x "$launcher"
 
     if command -v gnome-terminal >/dev/null 2>&1; then
-        gnome-terminal -- bash -lc "$launch_cmd"
+        gnome-terminal -- bash "$launcher"
     elif command -v konsole >/dev/null 2>&1; then
-        konsole -e bash -lc "$launch_cmd"
+        konsole -e bash "$launcher"
     elif command -v guake >/dev/null 2>&1; then
-        guake -e "bash -lc \"$launch_cmd\""
+        guake -e "bash \"$launcher\""
     elif command -v terminator >/dev/null 2>&1; then
-        terminator -e "bash -lc \"$launch_cmd\""
+        terminator -e "bash \"$launcher\""
     elif command -v xterm >/dev/null 2>&1; then
-        xterm -hold -e bash -lc "$script_cmd"
+        xterm -e bash "$launcher"
     else
         "$DIR/scripts/uninstall.sh" "$@"
+        rm -f -- "$launcher"
     fi
 }
 

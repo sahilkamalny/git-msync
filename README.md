@@ -32,6 +32,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+- [Optional Git Alias](#optional-git-alias)
 - [Uninstallation](#uninstallation)
 - [Project structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
@@ -51,7 +52,7 @@ GitHub Multi-Sync (`gh-msync`) is a cross-platform utility for syncing local Git
 - **Flexible invocation** — Run `gh-msync` directly, or as `gh msync` when installed as a GitHub CLI extension.
 - **Parallel fetching** — Pulls all tracked repositories concurrently, with per-repo fallback on errors.
 - **Fail-safe rebase protection** — Runs `git rebase --abort` on failed pulls so repositories are never left in a dirty state.
-- **Auto SSH upgrades** — Detects `https://` remotes and upgrades them to `git@github.com:` SSH.
+- **Auto SSH upgrades** — Detects `https://` remotes and upgrades them to `git@github.com:` SSH (optional per run).
 - **Native OS integrations** — macOS `.app` and Linux `.desktop` launcher (both named **GitHub Multi-Sync**), with native notifications.
 - **Interactive configuration** — GUI menu on macOS and Linux for multi-directory tracking.
 - **Animated terminal UI** — Progress spinner and sequential result output.
@@ -85,8 +86,16 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
    - **Homebrew (macOS & Linux):** `brew install sahilkamalny/homebrew-tap/gh-msync`
    - **GitHub CLI extension:** `gh extension install sahilkamalny/gh-msync`
    - **From source:** Clone this repo and run `./scripts/install.sh` (or double-click `macOS-Install.command` / `Linux-Install.sh` on supported platforms).
-2. **Run:** `gh-msync` from any directory.
+2. **Run:** `gh-msync` from any directory (or `gh msync` if installed as a GitHub CLI extension).
 3. **Configure paths (optional):** Run `gh-msync --configure` to pick directories in a GUI or at the terminal. You can also edit `~/.config/gh-msync/config` (one path per line). Default is `~/GitHub`.
+
+Command by install method:
+
+| Install method | Command to run | Installs standalone `gh-msync` on PATH |
+|---|---|---|
+| Homebrew | `gh-msync` | Yes |
+| From source installer | `gh-msync` | Yes (`~/.local/bin/gh-msync`) |
+| GitHub CLI extension | `gh msync` | No |
 
 ---
 
@@ -109,8 +118,10 @@ brew install gh-msync
 ```
 
 - The binary is installed to your Homebrew prefix (e.g. `/opt/homebrew/bin` on Apple Silicon, `/usr/local/bin` on Intel, or Linux Homebrew’s prefix) as `gh-msync`.
+- If `gh-msync` is not found right after install, initialize your shell with Homebrew’s environment first (for example: `eval "$(/opt/homebrew/bin/brew shellenv)"` on Apple Silicon, or the path printed by `brew shellenv` on your system).
 - A default config is created at `~/.config/gh-msync/config` with `~/GitHub` if it doesn’t exist. To choose your directories the same way as the from-source installer (GUI or CLI), run **`gh-msync --configure`** (or `gh-msync --configure --cli` for terminal-only). See [Configuration](#configuration).
 - Homebrew does not create the **GitHub Multi-Sync** macOS app or Linux desktop launcher; use the from-source installer (Option B) if you want those. Path configuration is identical: `gh-msync --configure`.
+- `gh` is optional for Homebrew installs. Install and log in (`brew install gh && gh auth login`) only if you want missing-repository cloning prompts or extension mode (`gh msync`).
 
 To **uninstall** (complete cleanup: binary, config, any from-source symlink/PATH/app/desktop):
 
@@ -153,6 +164,7 @@ gh msync
 ```
 
 Extension mode uses the same core script and supports the same flags (for example `gh msync --configure` and `gh msync --cli`).
+It does **not** install a standalone `gh-msync` binary onto your PATH.
 
 ---
 
@@ -205,6 +217,26 @@ gh-msync --cli
 gh-msync --headless
 ```
 
+### SSH remote behavior
+
+By default, GitHub HTTPS remotes are upgraded to SSH.
+
+```bash
+gh-msync --no-ssh-upgrade
+```
+
+Or disable globally for your shell session:
+
+```bash
+export GH_MSYNC_NO_SSH_UPGRADE=1
+```
+
+If you have disabled upgrades globally, you can re-enable them for one run:
+
+```bash
+gh-msync --ssh-upgrade
+```
+
 ### Override paths
 
 Use specific directories for one run (ignores config file):
@@ -222,6 +254,21 @@ gh-msync
 ```
 
 Behavior is the same; `gh-msync` is the preferred interface.
+
+---
+
+## Optional Git Alias
+
+If you want `git msync` muscle memory, add a Git alias explicitly (opt-in):
+
+```bash
+git config --global alias.msync '!f(){ gh msync "$@" 2>/dev/null || gh-msync "$@"; }; f'
+```
+
+Notes:
+- This is optional and is not configured automatically by installers.
+- This forwards all flags/arguments (for example `git msync --cli`).
+- This tries extension mode first (`gh msync`) and falls back to standalone mode (`gh-msync`).
 
 ---
 
@@ -276,6 +323,9 @@ The from-source uninstaller removes the same set of items (including the app in 
 
 - **SSH errors**  
   Configure a GitHub SSH key and add it to your account. GitHub Multi-Sync upgrades HTTPS remotes to SSH.
+
+- **Don’t want remotes auto-converted to SSH**  
+  Run with `gh-msync --no-ssh-upgrade`, or set `GH_MSYNC_NO_SSH_UPGRADE=1` in your shell environment.
 
 ---
 

@@ -43,6 +43,20 @@ fi
 CYAN="\033[1;36m"
 RESET="\033[0m"
 
+trim_whitespace() {
+    local value="$1"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    printf '%s' "$value"
+}
+
+escape_applescript_string() {
+    local value="$1"
+    value="${value//\\/\\\\}"
+    value="${value//\"/\\\"}"
+    printf '%s' "$value"
+}
+
 print_box() {
     local title="$1"
     local border_color="${2:-\033[1;34m}"
@@ -73,7 +87,7 @@ echo ""
 if [ -n "$USER_PATHS" ]; then
     IFS=',' read -ra PATH_ARRAY <<< "$USER_PATHS"
     for p in "${PATH_ARRAY[@]}"; do
-        p=$(echo "$p" | xargs)
+        p="$(trim_whitespace "$p")"
         [ -n "$p" ] && echo -e "    \033[1;34m∘\033[0m $p"
     done
 else
@@ -107,9 +121,10 @@ echo -e "    \033[1;32m∘\033[0m Installed command (\033[1mgh-msync\033[0m)"
 if [[ "$OS" == "Darwin" ]]; then
     APP_NAME="GitHub Multi-Sync.app"
     APP_DIR="$REPO_DIR/$APP_NAME"
+    APP_DIR_AS="$(escape_applescript_string "$APP_DIR")"
     
     rm -rf "$APP_DIR"
-    osacompile -o "$APP_DIR" -e "tell application \"Terminal\"" -e "activate" -e "do script \"exec bash \\\"$APP_DIR/Contents/Resources/run.sh\\\"\"" -e "end tell" >/dev/null 2>&1
+    osacompile -o "$APP_DIR" -e "tell application \"Terminal\"" -e "activate" -e "do script \"exec bash \\\"$APP_DIR_AS/Contents/Resources/run.sh\\\"\"" -e "end tell" >/dev/null 2>&1
     
 cat << EOF > "$APP_DIR/Contents/Resources/run.sh"
 #!/bin/bash
@@ -145,7 +160,7 @@ Version=1.0
 Type=Application
 Name=GitHub Multi-Sync
 Comment=Synchronize all local GitHub repositories
-Exec=$SCRIPT_PATH
+Exec="$SCRIPT_PATH"
 Icon=utilities-terminal
 Terminal=true
 Categories=Utility;Development;
@@ -156,28 +171,27 @@ EOF
     echo -e "    \033[1;32m∘\033[0m ${ACTION_STR} Linux Application (\033[4mgh-msync.desktop\033[0m)"
 fi
 
-PATH_INJECTED=0
-for rc in "$HOME/.zshrc" "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.profile"; do
-    if [ -f "$rc" ] && grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$rc" 2>/dev/null; then
-        PATH_INJECTED=1
-        break
+SHELL_RC=""
+if [[ "$SHELL" == *"zsh"* ]]; then
+    SHELL_RC="$HOME/.zshrc"
+elif [[ "$SHELL" == *"bash"* ]]; then
+    if [[ "$OS" == "Darwin" ]]; then
+        SHELL_RC="$HOME/.bash_profile"
+    else
+        SHELL_RC="$HOME/.bashrc"
     fi
-done
+else
+    SHELL_RC="$HOME/.profile"
+fi
+
+PATH_INJECTED=0
+if [[ ":$PATH:" == *":$LOCAL_BIN:"* ]]; then
+    PATH_INJECTED=1
+elif [ -n "$SHELL_RC" ] && [ -f "$SHELL_RC" ] && grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$SHELL_RC" 2>/dev/null; then
+    PATH_INJECTED=1
+fi
 
 if [ "$PATH_INJECTED" -eq 0 ]; then
-    SHELL_RC=""
-    if [[ "$SHELL" == *"zsh"* ]]; then
-        SHELL_RC="$HOME/.zshrc"
-    elif [[ "$SHELL" == *"bash"* ]]; then
-        if [[ "$OS" == "Darwin" ]]; then
-            SHELL_RC="$HOME/.bash_profile"
-        else
-            SHELL_RC="$HOME/.bashrc"
-        fi
-    else
-        SHELL_RC="$HOME/.profile"
-    fi
-
     if [ -n "$SHELL_RC" ]; then
         echo -e "\nexport PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$SHELL_RC"
         echo -e "    \033[1;32m∘\033[0m Configured PATH automatically via \033[4m$(basename "$SHELL_RC")\033[0m"
@@ -201,7 +215,7 @@ fi
 echo ""
 
 if [[ "$OS" == "Darwin" ]]; then
-    osascript -e 'display notification "Installation complete. You can now run gh-msync." with title "GitHub Multi-Sync"'
+    osascript -e 'display notification "Installation complete. You can now run gh-msync." with title "GitHub Multi-Sync"' >/dev/null 2>&1 || true
 elif [[ "$OS" == "Linux" ]]; then
     if command -v notify-send >/dev/null; then
         notify-send "GitHub Multi-Sync" "Installation complete. You can now run gh-msync."

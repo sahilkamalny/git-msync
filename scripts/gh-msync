@@ -7,10 +7,34 @@
 CONFIG_DIR="$HOME/.config/gh-msync"
 CONFIG_FILE="$CONFIG_DIR/config"
 
+resolve_script_dir() {
+    local source="${BASH_SOURCE[0]}"
+    local dir target
+
+    while [ -L "$source" ]; do
+        dir="$(cd -P "$(dirname "$source")" && pwd)"
+        target="$(readlink "$source")"
+        if [[ "$target" == /* ]]; then
+            source="$target"
+        else
+            source="$dir/$target"
+        fi
+    done
+
+    cd -P "$(dirname "$source")" && pwd
+}
+
 trim_whitespace() {
     local value="$1"
     value="${value#"${value%%[![:space:]]*}"}"
     value="${value%"${value##*[![:space:]]}"}"
+    printf '%s' "$value"
+}
+
+escape_applescript_string() {
+    local value="$1"
+    value="${value//\\/\\\\}"
+    value="${value//\"/\\\"}"
     printf '%s' "$value"
 }
 
@@ -31,13 +55,13 @@ expand_home_path() {
 # --configure / --config: run path picker and save to config, then exit
 if [[ "$1" == "--configure" || "$1" == "--config" ]]; then
     CONFIGURER=""
-    PREFIX="$(brew --prefix gh-msync 2>/dev/null)"
-    if [ -n "$PREFIX" ] && [ -x "$PREFIX/libexec/gh-msync-configure" ]; then
-        CONFIGURER="$PREFIX/libexec/gh-msync-configure"
-    else
-        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-        if [ -x "$SCRIPT_DIR/configure-paths.sh" ]; then
-            CONFIGURER="$SCRIPT_DIR/configure-paths.sh"
+    SCRIPT_DIR="$(resolve_script_dir)"
+    if [ -x "$SCRIPT_DIR/configure-paths.sh" ]; then
+        CONFIGURER="$SCRIPT_DIR/configure-paths.sh"
+    elif command -v brew >/dev/null 2>&1; then
+        PREFIX="$(brew --prefix gh-msync 2>/dev/null)"
+        if [ -n "$PREFIX" ] && [ -x "$PREFIX/libexec/gh-msync-configure" ]; then
+            CONFIGURER="$PREFIX/libexec/gh-msync-configure"
         fi
     fi
     if [ -n "$CONFIGURER" ]; then
@@ -73,10 +97,18 @@ if [ -f "$CONFIG_FILE" ]; then
 fi
 
 FORCE_CLI=0
+AUTO_UPGRADE_SSH=1
+if [[ "${GH_MSYNC_NO_SSH_UPGRADE:-0}" == "1" ]]; then
+    AUTO_UPGRADE_SSH=0
+fi
 ARGS_DIRS=()
 for arg in "$@"; do
     if [[ "$arg" == "--cli" || "$arg" == "--headless" ]]; then
         FORCE_CLI=1
+    elif [[ "$arg" == "--no-ssh-upgrade" ]]; then
+        AUTO_UPGRADE_SSH=0
+    elif [[ "$arg" == "--ssh-upgrade" ]]; then
+        AUTO_UPGRADE_SSH=1
     else
         ARGS_DIRS+=("$arg")
     fi
@@ -96,12 +128,14 @@ OS="$(uname -s)"
 if [ "$IS_TTY" -eq 1 ]; then
     GREEN="\033[1;32m"
     YELLOW="\033[1;33m"
+    RED="\033[1;31m"
     BLUE="\033[1;34m"
     CYAN="\033[1;36m"
     RESET="\033[0m"
 else
     GREEN=""
     YELLOW=""
+    RED=""
     BLUE=""
     CYAN=""
     RESET=""
@@ -152,6 +186,7 @@ tmp_files=()
 repo_paths=()
 before_commits=()
 statuses=() # 0=Pulling, 1=Skipped, 2=Error Accessing
+ssh_upgraded=() # 1 if origin changed from HTTPS to SSH
 GH_REPO_LIST_FILE=""
 
 cleanup_temp_files() {
@@ -170,19 +205,13 @@ trap cleanup_temp_files EXIT
 count=0
 for repo in "${repos[@]}"; do
     repo_paths[$count]="$repo"
+    ssh_upgraded[$count]=0
     
     cd "$repo" || {
         statuses[$count]=2
         ((count++))
         continue
     }
-
-    # Convert HTTPS → SSH if needed
-    current_url=$(git remote get-url origin 2>/dev/null)
-    if [[ "$current_url" == https://github.com/* ]]; then
-        ssh_url=$(echo "$current_url" | sed 's|https://github.com/|git@github.com:|')
-        git remote set-url origin "$ssh_url"
-    fi
 
     # Detect uncommitted changes
     modified_files=$(git status --porcelain | wc -l | tr -d ' ')
@@ -191,6 +220,16 @@ for repo in "${repos[@]}"; do
         statuses[$count]=1
         ((count++))
         continue
+    fi
+
+    # Convert HTTPS → SSH if enabled
+    if [ "$AUTO_UPGRADE_SSH" -eq 1 ]; then
+        current_url=$(git remote get-url origin 2>/dev/null)
+        if [[ "$current_url" == https://github.com/* ]]; then
+            ssh_url=$(echo "$current_url" | sed 's|https://github.com/|git@github.com:|')
+            git remote set-url origin "$ssh_url"
+            ssh_upgraded[$count]=1
+        fi
     fi
 
     statuses[$count]=0
@@ -241,15 +280,19 @@ display_count=1
 for i in "${!repo_paths[@]}"; do
     repo="${repo_paths[$i]}"
     REPO_NAME=$(basename "$repo")
+    upgrade_note=""
+    if [ "${ssh_upgraded[$i]:-0}" -eq 1 ]; then
+        upgrade_note=" (origin switched to SSH)"
+    fi
     printf "${PAD}${BLUE}[%d/%d]${RESET} %s " "$display_count" "$total" "$REPO_NAME"
     ((display_count++))
     
     if [ "${statuses[$i]}" -eq 2 ]; then
-        echo -e "${BLUE}...${RESET} ${YELLOW}× unable to access repository${RESET}"
+        echo -e "${BLUE}...${RESET} ${RED}× unable to access repository${RESET}"
         continue
     elif [ "${statuses[$i]}" -eq 1 ]; then
         # We didn't save the modified file count, so we just print skipped
-        echo -e "${BLUE}...${RESET} ${YELLOW}△ modified files: sync skipped${RESET}"
+        echo -e "${BLUE}...${RESET} ${YELLOW}△ modified files: sync skipped${RESET}${upgrade_note}"
         continue
     fi
     
@@ -262,17 +305,22 @@ for i in "${!repo_paths[@]}"; do
     
     if [ $RESULT -ne 0 ]; then
         git rebase --abort 2>/dev/null || true
-        echo -e "${BLUE}...${RESET} ${YELLOW}× pull failed (rebase aborted to protect repo)${RESET}"
+        echo -e "${BLUE}...${RESET} ${RED}× pull failed (rebase aborted to protect repo)${RESET}${upgrade_note}"
     elif [ "${before_commits[$i]}" = "$after_commit" ]; then
-        echo -e "${BLUE}...${RESET} ${GREEN}✓ up to date${RESET}"
+        echo -e "${BLUE}...${RESET} ${GREEN}✓ up to date${RESET}${upgrade_note}"
     else
-        commit_count=$(git rev-list --count "${before_commits[$i]}..$after_commit" 2>/dev/null || echo "1")
-        file_count=$(git diff --name-only "${before_commits[$i]}..$after_commit" 2>/dev/null | wc -l | tr -d ' ')
+        if [ -z "${before_commits[$i]}" ]; then
+            commit_count="1"
+            file_count="0"
+        else
+            commit_count=$(git rev-list --count "${before_commits[$i]}..$after_commit" 2>/dev/null || echo "1")
+            file_count=$(git diff --name-only "${before_commits[$i]}..$after_commit" 2>/dev/null | wc -l | tr -d ' ')
+        fi
         commit_str="commits"
         [ "$commit_count" -eq 1 ] && commit_str="commit"
         file_str="files"
         [ "$file_count" -eq 1 ] && file_str="file"
-        echo -e "${BLUE}...${RESET} ${CYAN}↓ pulled $commit_count $commit_str affecting $file_count $file_str${RESET}"
+        echo -e "${BLUE}...${RESET} ${CYAN}↓ pulled $commit_count $commit_str affecting $file_count $file_str${RESET}${upgrade_note}"
     fi
 
     # Clean up temp files
@@ -317,11 +365,13 @@ if command -v gh >/dev/null 2>&1; then
         missing_repos=()
         missing_urls=()
         GH_DISCOVERY_FAILED=0
+        GH_DISCOVERY_REASON=""
 
         # Fetch remote repos from GitHub using gh asynchronously with spinner
         GH_REPO_LIST_FILE="$(mktemp 2>/dev/null || true)"
         if [ -z "$GH_REPO_LIST_FILE" ]; then
             GH_DISCOVERY_FAILED=1
+            GH_DISCOVERY_REASON="tempfile"
         else
             gh repo list --limit 1000 --json nameWithOwner,sshUrl --jq '.[] | "\(.nameWithOwner)|\(.sshUrl)"' > "$GH_REPO_LIST_FILE" 2>/dev/null &
             gh_pid=$!
@@ -341,35 +391,47 @@ if command -v gh >/dev/null 2>&1; then
             if [ "$IS_TTY" -eq 1 ]; then
                 printf "\r\033[K"
             fi
-            echo -e "    ${BLUE}✓  Fetched repository list from GitHub.${RESET}"
+            wait "$gh_pid" 2>/dev/null
+            gh_result=$?
 
-            remote_repos="$(cat "$GH_REPO_LIST_FILE")"
-            rm -f "$GH_REPO_LIST_FILE"
-            GH_REPO_LIST_FILE=""
+            if [ "$gh_result" -ne 0 ]; then
+                GH_DISCOVERY_FAILED=1
+                GH_DISCOVERY_REASON="gh_command"
+            else
+                echo -e "    ${BLUE}✓  Fetched repository list from GitHub.${RESET}"
 
-            while IFS="|" read -r name_with_owner ssh_url; do
-                [ -z "$name_with_owner" ] && continue
+                remote_repos="$(cat "$GH_REPO_LIST_FILE")"
+                rm -f "$GH_REPO_LIST_FILE"
+                GH_REPO_LIST_FILE=""
 
-                check_url="${ssh_url%.git}"
-                check_url=$(echo "$check_url" | tr '[:upper:]' '[:lower:]')
+                while IFS="|" read -r name_with_owner ssh_url; do
+                    [ -z "$name_with_owner" ] && continue
 
-                found=0
-                for l_url in "${local_urls[@]}"; do
-                    if [ "$l_url" == "$check_url" ]; then
-                        found=1
-                        break
+                    check_url="${ssh_url%.git}"
+                    check_url=$(echo "$check_url" | tr '[:upper:]' '[:lower:]')
+
+                    found=0
+                    for l_url in "${local_urls[@]}"; do
+                        if [ "$l_url" == "$check_url" ]; then
+                            found=1
+                            break
+                        fi
+                    done
+
+                    if [ $found -eq 0 ]; then
+                        missing_repos+=("$name_with_owner")
+                        missing_urls+=("$ssh_url")
                     fi
-                done
-
-                if [ $found -eq 0 ]; then
-                    missing_repos+=("$name_with_owner")
-                    missing_urls+=("$ssh_url")
-                fi
-            done <<< "$remote_repos"
+                done <<< "$remote_repos"
+            fi
         fi
 
         if [ "$GH_DISCOVERY_FAILED" -eq 1 ]; then
-            echo -e "    ${YELLOW}× Unable to create a temporary file for GitHub repository discovery.${RESET}\n"
+            if [ "$GH_DISCOVERY_REASON" = "tempfile" ]; then
+                echo -e "    ${YELLOW}× Unable to create a temporary file for GitHub repository discovery.${RESET}\n"
+            else
+                echo -e "    ${YELLOW}× Unable to fetch your repository list from GitHub right now.${RESET}\n"
+            fi
             echo -e "    ${BLUE}No repositories cloned.${RESET}\n"
         elif [ ${#missing_repos[@]} -gt 0 ]; then
             SELECTED_REPOS=""
@@ -390,8 +452,7 @@ if command -v gh >/dev/null 2>&1; then
                     echo -ne "\n    \033[3mPlease interact with the pop-up...\033[0m"
                     repo_list_str=""
                     for repo in "${missing_repos[@]}"; do
-                        # Replace internal quotes if any, just to be extremely safe, though unlikely in repo names
-                        repo_clean="${repo//\"/\\\"}"
+                        repo_clean="$(escape_applescript_string "$repo")"
                         repo_list_str+="\"$repo_clean\","
                     done
                     repo_list_str="${repo_list_str%,}"
@@ -417,7 +478,7 @@ if command -v gh >/dev/null 2>&1; then
                         else
                             dir_list_str=""
                             for dir in "${BASE_DIRS[@]}"; do
-                                dir_clean="${dir//\"/\\\"}"
+                                dir_clean="$(escape_applescript_string "$dir")"
                                 dir_list_str+="\"$dir_clean\","
                             done
                             dir_list_str="${dir_list_str%,}"
@@ -626,11 +687,19 @@ if command -v gh >/dev/null 2>&1; then
             echo -e "\n    ${GREEN}✓  All your remote repositories are already cloned locally.${RESET}\n"
         fi
         fi
+    else
+        print_box "❏  Missing Repositories" "$BLUE" "$CYAN"
+        echo -e "\n    ${YELLOW}△  Missing-repository discovery skipped: GitHub CLI is not authenticated.${RESET}"
+        echo -e "    ${CYAN}Run: gh auth login${RESET}\n"
     fi
+else
+    print_box "❏  Missing Repositories" "$BLUE" "$CYAN"
+    echo -e "\n    ${YELLOW}△  Missing-repository discovery skipped: GitHub CLI (gh) is not installed.${RESET}"
+    echo -e "    ${CYAN}Install and log in to enable it: brew install gh && gh auth login${RESET}\n"
 fi
 
 if [[ "$OS" == "Darwin" ]]; then
-    osascript -e 'display notification "Repository sync complete." with title "GitHub Multi-Sync"'
+    osascript -e 'display notification "Repository sync complete." with title "GitHub Multi-Sync"' >/dev/null 2>&1 || true
 elif [[ "$OS" == "Linux" ]]; then
     if command -v notify-send >/dev/null; then
         notify-send "GitHub Multi-Sync" "Repository sync complete."

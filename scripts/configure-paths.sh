@@ -9,6 +9,20 @@ OS="$(uname -s)"
 CYAN="\033[1;36m"
 RESET="\033[0m"
 
+trim_whitespace() {
+    local value="$1"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    printf '%s' "$value"
+}
+
+escape_applescript_string() {
+    local value="$1"
+    value="${value//\\/\\\\}"
+    value="${value//\"/\\\"}"
+    printf '%s' "$value"
+}
+
 print_box() {
     local title="$1"
     local border_color="${2:-\033[1;34m}"
@@ -59,7 +73,8 @@ if [ "$HAS_GUI" -eq 1 ]; then
         if [ -n "$USER_PATHS" ]; then
             IFS=',' read -ra PATH_ARRAY <<< "$USER_PATHS"
             for p in "${PATH_ARRAY[@]}"; do
-                APPLESCRIPT_OPTS+=("-e" "set end of userPaths to POSIX path of \"$p\"")
+                escaped_p="$(escape_applescript_string "$p")"
+                APPLESCRIPT_OPTS+=("-e" "set end of userPaths to POSIX path of \"$escaped_p\"")
             done
         fi
 
@@ -189,11 +204,23 @@ if [ "$HAS_GUI" -eq 1 ]; then
                     if [ ${#user_paths_array[@]} -gt 0 ]; then
                         list_args=()
                         for p in "${user_paths_array[@]}"; do list_args+=("$p" "$p" "off"); done
-                        to_remove=$(kdialog --checklist "Select folders to remove:" "${list_args[@]}" 2>/dev/null)
+                        to_remove=$(kdialog --checklist "Select folders to remove:" "${list_args[@]}" --separate-output 2>/dev/null)
                         if [ -n "$to_remove" ]; then
+                            remove_items=()
+                            while IFS= read -r item; do
+                                [ -n "$item" ] && remove_items+=("$item")
+                            done <<< "$to_remove"
+
                             new_array=()
                             for p in "${user_paths_array[@]}"; do
-                                echo "$to_remove" | grep -Fq "\"$p\"" || new_array+=("$p")
+                                keep=1
+                                for item in "${remove_items[@]}"; do
+                                    if [ "$p" = "$item" ]; then
+                                        keep=0
+                                        break
+                                    fi
+                                done
+                                [ "$keep" -eq 1 ] && new_array+=("$p")
                             done
                             user_paths_array=("${new_array[@]}")
                         fi
@@ -211,6 +238,8 @@ if [ "$HAS_GUI" -eq 1 ]; then
 
         if [ ${#user_paths_array[@]} -gt 0 ]; then
             USER_PATHS=$(IFS=,; echo "${user_paths_array[*]}")
+        else
+            USER_PATHS=""
         fi
     fi
 fi
@@ -231,10 +260,18 @@ fi
 if [ -n "$USER_PATHS" ]; then
     > "$CONFIG_FILE"
     IFS=',' read -ra PATH_ARRAY <<< "$USER_PATHS"
+    valid_paths=0
     for p in "${PATH_ARRAY[@]}"; do
-        p=$(echo "$p" | xargs)
-        [ -n "$p" ] && echo "$p" >> "$CONFIG_FILE"
+        p="$(trim_whitespace "$p")"
+        if [ -n "$p" ]; then
+            echo "$p" >> "$CONFIG_FILE"
+            valid_paths=1
+        fi
     done
+    if [ "$valid_paths" -eq 0 ]; then
+        echo "$HOME/GitHub" >> "$CONFIG_FILE"
+        USER_PATHS=""
+    fi
 else
     > "$CONFIG_FILE"
     echo "$HOME/GitHub" >> "$CONFIG_FILE"
@@ -246,7 +283,7 @@ if [ "$QUIET" -eq 0 ]; then
     if [ -n "$USER_PATHS" ]; then
         IFS=',' read -ra PATH_ARRAY <<< "$USER_PATHS"
         for p in "${PATH_ARRAY[@]}"; do
-            p=$(echo "$p" | xargs)
+            p="$(trim_whitespace "$p")"
             [ -n "$p" ] && echo -e "    \033[1;34m∘\033[0m $p"
         done
     else
