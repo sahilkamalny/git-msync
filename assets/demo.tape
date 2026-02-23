@@ -27,17 +27,17 @@ Type "y"
 Sleep 400ms
 Enter
 
-Sleep 3s
+Sleep 2.5s
 
 Type "1, 2"
 Sleep 400ms
 Enter
 
-Sleep 3s
+Sleep 2s
 
 Type "2"
 Sleep 400ms
 Enter
 
 # Hold the final result on screen so the user can admire the output
-Sleep 5s
+Sleep 3s
