@@ -82,7 +82,7 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 ## Quick start
 
 1. **Install** (choose one):
-   - **Homebrew (macOS):** `brew install <your-tap>/git-msync` (once the formula is in a tap).
+   - **Homebrew (macOS):** `brew install sahilkamalny/homebrew-tap/git-msync`
    - **From source:** Clone this repo and run `./scripts/install.sh` (or double-click `macOS-Install.command` / `Linux-Install.sh` on supported platforms).
 2. **Run:** `git msync` from any directory.
 3. **Configure (optional):** Add repository root paths to `~/.config/git-msync/config` (one path per line), or use the installer’s GUI. Default is `~/GitHub`.
@@ -93,14 +93,22 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 
 ### Option A: Homebrew (macOS, recommended when available)
 
-When the formula is published to a Homebrew tap:
+The correct install command is **`brew install git-msync`** (one token). There is no `brew install git msync` — the formula name is always `git-msync`; after install, users run the Git subcommand as **`git msync`** (with a space).
+
+Install with one command (Homebrew taps the repo automatically):
 
 ```bash
-brew install <your-tap>/git-msync
+brew install sahilkamalny/homebrew-tap/git-msync
 ```
 
-- The binary is installed to your Homebrew prefix (e.g. `/usr/local/bin` or `/opt/homebrew/bin`) as `git-msync`.
-- Git will run it for `git msync` automatically.
+If they have already run `brew tap sahilkamalny/homebrew-tap`, they can use:
+
+```bash
+brew install git-msync
+```
+
+- The binary is installed to your Homebrew prefix (e.g. `/opt/homebrew/bin` on Apple Silicon or `/usr/local/bin` on Intel) as `git-msync`.
+- Git invokes it for `git msync` automatically.
 - No GUI installer is run; configure paths via `~/.config/git-msync/config` or by passing directories to `git msync` (see [Configuration](#configuration) and [Usage](#usage)).
 
 To **uninstall**:

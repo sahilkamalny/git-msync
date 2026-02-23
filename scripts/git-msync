@@ -10,7 +10,7 @@ CONFIG_DIR="$HOME/.config/git-msync"
 CONFIG_FILE="$CONFIG_DIR/config"
 
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\033[1;36m  ☯︎  Git Multi-Sync\033[0m"
+echo -e "\033[1;36m  ➢  Git Multi-Sync\033[0m"
 echo -e "\033[1;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
 

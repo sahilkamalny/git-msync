@@ -2,14 +2,12 @@
 # frozen_string_literal: true
 
 # Git Multi-Sync: native Git subcommand to sync multiple repositories in parallel.
-# https://github.com/USER/REPO
 class GitMsync < Formula
   desc "Native Git subcommand to sync multiple repositories in parallel"
-  homepage "https://github.com/USER/REPO"
-  url "https://github.com/USER/REPO/archive/refs/tags/v0.0.0.tar.gz"
+  homepage "https://github.com/sahilkamalny/git-msync"
+  url "https://github.com/sahilkamalny/git-msync/archive/refs/tags/v1.0.0.tar.gz"
   sha256 "PLACEHOLDER_SHA256"
   license "MIT"
-  version "0.0.0"
 
   depends_on "git"
   depends_on "gh"
