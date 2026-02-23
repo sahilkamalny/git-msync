@@ -210,7 +210,7 @@ Shows all supported flags and environment toggles.
 
 ```bash
 gh-msync --configure          # GUI or CLI path picker
-gh-msync --configure --cli   # terminal prompts only
+gh-msync --configure --cli    # terminal prompts only
 ```
 
 Saves chosen directories to `~/.config/gh-msync/config` so future `gh-msync` runs use them automatically.
