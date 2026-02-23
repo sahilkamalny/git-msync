@@ -10,13 +10,27 @@ printf '\033[2J\033[3J\033[H'
 OS="$(uname -s)"
 SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+string_display_width() {
+    local text="$1"
+    local width
+
+    width="$(printf '%s' "$text" | wc -m | tr -d ' ')"
+    if [[ ! "$width" =~ ^[0-9]+$ ]]; then
+        width="${#text}"
+    fi
+    printf '%s' "$width"
+}
+
 print_box() {
     local title="$1"
     local border_color="${2:-\033[1;34m}"
     local title_color="${3:-\033[1;31m}"
-    local inner_width=$(( ${#title} + 2 ))
+    local title_width
+    local inner_width
     local horizontal
 
+    title_width="$(string_display_width "$title")"
+    inner_width=$(( title_width + 2 ))
     horizontal="$(printf '%*s' "$inner_width" '' | tr ' ' '━')"
     echo -e "${border_color}┏${horizontal}┓\033[0m"
     echo -e "${border_color}┃\033[0m ${title_color}${title}\033[0m ${border_color}┃\033[0m"
@@ -115,73 +129,112 @@ fi
 
 # Remove command
 if [ -L "$HOME/.local/bin/gh-msync" ] || [ -f "$HOME/.local/bin/gh-msync" ]; then
-    rm -f "$HOME/.local/bin/gh-msync"
-    echo -e "    \033[1;31m∘\033[0m Removed command (\033[4m~/.local/bin/gh-msync\033[0m)"
+    if rm -f "$HOME/.local/bin/gh-msync"; then
+        echo -e "    \033[1;31m∘\033[0m Removed command (\033[4m~/.local/bin/gh-msync\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove (\033[4m~/.local/bin/gh-msync\033[0m)"
+    fi
 fi
 
 if grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.zshrc" 2>/dev/null; then
-    sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.zshrc" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.zshrc" 2>/dev/null
-    echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.zshrc\033[0m)"
+    if sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.zshrc" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.zshrc" 2>/dev/null; then
+        echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.zshrc\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not update (\033[4m~/.zshrc\033[0m)"
+    fi
 fi
 if grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bash_profile" 2>/dev/null; then
-    sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bash_profile" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bash_profile" 2>/dev/null
-    echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.bash_profile\033[0m)"
+    if sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bash_profile" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bash_profile" 2>/dev/null; then
+        echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.bash_profile\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not update (\033[4m~/.bash_profile\033[0m)"
+    fi
 fi
 if grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null; then
-    sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bashrc" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bashrc" 2>/dev/null
-    echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.bashrc\033[0m)"
+    if sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bashrc" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.bashrc" 2>/dev/null; then
+        echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.bashrc\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not update (\033[4m~/.bashrc\033[0m)"
+    fi
 fi
 if grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.profile" 2>/dev/null; then
-    sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.profile" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.profile" 2>/dev/null
-    echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.profile\033[0m)"
+    if sed -i '' '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.profile" 2>/dev/null || sed -i '/export PATH="\$HOME\/.local\/bin:\$PATH"/d' "$HOME/.profile" 2>/dev/null; then
+        echo -e "    \033[1;31m∘\033[0m Removed PATH injection (\033[4m~/.profile\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not update (\033[4m~/.profile\033[0m)"
+    fi
 fi
 
 # Remove Configuration
 if [ -d "$HOME/.config/gh-msync" ]; then
-    rm -rf "$HOME/.config/gh-msync"
-    echo -e "    \033[1;31m∘\033[0m Removed configurations (\033[4m~/.config/gh-msync\033[0m)"
+    if rm -rf "$HOME/.config/gh-msync"; then
+        echo -e "    \033[1;31m∘\033[0m Removed configurations (\033[4m~/.config/gh-msync\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove (\033[4m~/.config/gh-msync\033[0m)"
+    fi
 fi
 
 # Remove Linux desktop entry
 if [ -f "$HOME/.local/share/applications/gh-msync.desktop" ]; then
-    rm -f "$HOME/.local/share/applications/gh-msync.desktop"
-    echo -e "    \033[1;31m∘\033[0m Removed Linux App entry (\033[4mgh-msync.desktop\033[0m)"
+    if rm -f "$HOME/.local/share/applications/gh-msync.desktop"; then
+        echo -e "    \033[1;31m∘\033[0m Removed Linux App entry (\033[4mgh-msync.desktop\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove (\033[4mgh-msync.desktop\033[0m)"
+    fi
 fi
 
 # Remove Mac App if exists in repo dir
 if [ -d "$SCRIPT_ROOT/GitHub Multi-Sync.app" ]; then
-    rm -rf "$SCRIPT_ROOT/GitHub Multi-Sync.app"
-    echo -e "    \033[1;31m∘\033[0m Removed macOS App (\033[4mGitHub Multi-Sync.app\033[0m)"
+    if rm -rf "$SCRIPT_ROOT/GitHub Multi-Sync.app"; then
+        echo -e "    \033[1;31m∘\033[0m Removed macOS App (\033[4mGitHub Multi-Sync.app\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove (\033[4mGitHub Multi-Sync.app\033[0m)"
+    fi
 fi
 
 # Remove Mac App if user dragged it to system /Applications
 if [ -d "/Applications/GitHub Multi-Sync.app" ]; then
-    rm -rf "/Applications/GitHub Multi-Sync.app"
-    echo -e "    \033[1;31m∘\033[0m Removed macOS App from system (\033[4m/Applications\033[0m)"
+    if rm -rf "/Applications/GitHub Multi-Sync.app" >/dev/null 2>&1; then
+        echo -e "    \033[1;31m∘\033[0m Removed macOS App from system (\033[4m/Applications\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove app from (\033[4m/Applications\033[0m) without elevated permissions"
+    fi
 fi
 
 # Remove Mac App if user dragged it to user ~/Applications
 if [ -d "$HOME/Applications/GitHub Multi-Sync.app" ]; then
-    rm -rf "$HOME/Applications/GitHub Multi-Sync.app"
-    echo -e "    \033[1;31m∘\033[0m Removed macOS App from user (\033[4m~/Applications\033[0m)"
+    if rm -rf "$HOME/Applications/GitHub Multi-Sync.app"; then
+        echo -e "    \033[1;31m∘\033[0m Removed macOS App from user (\033[4m~/Applications\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove app from (\033[4m~/Applications\033[0m)"
+    fi
 fi
 
 # Remove Mac App if user dragged it to their Desktop
 if [ -d "$HOME/Desktop/GitHub Multi-Sync.app" ]; then
-    rm -rf "$HOME/Desktop/GitHub Multi-Sync.app"
-    echo -e "    \033[1;31m∘\033[0m Removed macOS App from (\033[4m~/Desktop\033[0m)"
+    if rm -rf "$HOME/Desktop/GitHub Multi-Sync.app"; then
+        echo -e "    \033[1;31m∘\033[0m Removed macOS App from (\033[4m~/Desktop\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove app from (\033[4m~/Desktop\033[0m)"
+    fi
 fi
 
 # Remove Linux desktop entry if user dragged it to their Desktop
 if [ -f "$HOME/Desktop/gh-msync.desktop" ]; then
-    rm -f "$HOME/Desktop/gh-msync.desktop"
-    echo -e "    \033[1;31m∘\033[0m Removed Linux App entry from (\033[4m~/Desktop\033[0m)"
+    if rm -f "$HOME/Desktop/gh-msync.desktop"; then
+        echo -e "    \033[1;31m∘\033[0m Removed Linux App entry from (\033[4m~/Desktop\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove Linux app entry from (\033[4m~/Desktop\033[0m)"
+    fi
 fi
 
 # Remove legacy data dir if exists in repo dir
 if [ -d "$SCRIPT_ROOT/GitHub Multi-Sync" ]; then
-    rm -rf "$SCRIPT_ROOT/GitHub Multi-Sync"
-    echo -e "    \033[1;31m∘\033[0m Removed legacy directory (\033[4mGitHub Multi-Sync\033[0m)"
+    if rm -rf "$SCRIPT_ROOT/GitHub Multi-Sync"; then
+        echo -e "    \033[1;31m∘\033[0m Removed legacy directory (\033[4mGitHub Multi-Sync\033[0m)"
+    else
+        echo -e "    \033[1;33m△\033[0m Could not remove legacy directory (\033[4mGitHub Multi-Sync\033[0m)"
+    fi
 fi
 
 echo ""

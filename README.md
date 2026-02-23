@@ -7,7 +7,7 @@
 [![Bash](https://img.shields.io/badge/Bash-5+-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![macOS](https://img.shields.io/badge/macOS-Supported-000000?style=flat-square&logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Linux](https://img.shields.io/badge/Linux-Supported-FCC624?style=flat-square&logo=linux&logoColor=black)](https://kernel.org/)
-[![Windows](https://img.shields.io/badge/Windows-Supported-0078D6?style=flat-square&logo=windows&logoColor=white)](https://www.microsoft.com/windows/)
+[![Windows](https://img.shields.io/badge/Windows-Git%20Bash%20%2F%20WSL-0078D6?style=flat-square&logo=windows&logoColor=white)](https://www.microsoft.com/windows/)
 
 **Built with** Bash · GitHub CLI · AppleScript
 
@@ -123,13 +123,13 @@ brew install gh-msync
 - Homebrew does not create the **GitHub Multi-Sync** macOS app or Linux desktop launcher; use the from-source installer (Option B) if you want those. Path configuration is identical: `gh-msync --configure`.
 - `gh` is optional for Homebrew installs. Install and log in (`brew install gh && gh auth login`) only if you want missing-repository cloning prompts or extension mode (`gh msync`).
 
-To **uninstall** (complete cleanup: binary, config, any from-source symlink/PATH/app/desktop):
+To uninstall Homebrew-managed files:
 
 ```bash
 brew uninstall gh-msync
 ```
 
-This removes the binary, `~/.config/gh-msync`, any `~/.local/bin/gh-msync` symlink, the PATH line the from-source installer may have added, and the GitHub Multi-Sync app/desktop launcher from standard locations.
+This removes the Homebrew-installed binary/formula files. If you also want user-data/artifact cleanup, remove `~/.config/gh-msync` and any from-source artifacts manually (or run `./scripts/uninstall.sh` from a clone of this repo).
 
 ### Option B: From source (all platforms)
 
@@ -198,6 +198,14 @@ gh-msync
 
 Uses paths from `~/.config/gh-msync/config` (or `~/GitHub` if unset), pulls all repos in parallel, and optionally prompts to clone missing repositories if `gh` is installed and authenticated.
 
+### Help
+
+```bash
+gh-msync --help
+```
+
+Shows all supported flags and environment toggles.
+
 ### Configure paths
 
 ```bash
@@ -245,18 +253,6 @@ Use specific directories for one run (ignores config file):
 gh-msync ~/ClientCode ~/SecondaryDrive
 ```
 
-### Direct binary
-
-If the binary is on your `PATH`, you can also run:
-
-```bash
-gh-msync
-```
-
-Behavior is the same; `gh-msync` is the preferred interface.
-
----
-
 ## Optional Git Alias
 
 If you want `git msync` muscle memory, add a Git alias explicitly (opt-in):
@@ -274,15 +270,15 @@ Notes:
 
 ## Uninstallation
 
-Both methods give you a **complete uninstall** (binary, config, PATH, app/desktop).
+Cleanup behavior depends on install method:
 
-- **If you installed via Homebrew:**  
+- **If you installed via Homebrew (removes Homebrew-managed files):**  
   ```bash
   brew uninstall gh-msync
   ```  
-  This removes the formula binary, `~/.config/gh-msync`, any `~/.local/bin/gh-msync` symlink, the PATH line the from-source installer may have added, and the **GitHub Multi-Sync** app/desktop launcher from standard locations.
+  Optional manual cleanup after that: remove `~/.config/gh-msync`, any old `~/.local/bin/gh-msync` symlink, and any app/desktop files created by from-source installs.
 
-- **If you installed from source (install script or macOS/Linux installers):**  
+- **If you installed from source (install script or macOS/Linux installers, complete cleanup):**  
   - **macOS:** Double-click `macOS-Uninstall.command`.  
   - **Linux:** Double-click `Linux-Uninstall.sh` or run it in a terminal.  
   - **Any:** From repo root: `./scripts/uninstall.sh`.

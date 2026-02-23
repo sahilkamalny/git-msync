@@ -16,6 +16,17 @@ trim_whitespace() {
     printf '%s' "$value"
 }
 
+string_display_width() {
+    local text="$1"
+    local width
+
+    width="$(printf '%s' "$text" | wc -m | tr -d ' ')"
+    if [[ ! "$width" =~ ^[0-9]+$ ]]; then
+        width="${#text}"
+    fi
+    printf '%s' "$width"
+}
+
 escape_applescript_string() {
     local value="$1"
     value="${value//\\/\\\\}"
@@ -27,9 +38,12 @@ print_box() {
     local title="$1"
     local border_color="${2:-\033[1;34m}"
     local title_color="${3:-\033[1;36m}"
-    local inner_width=$(( ${#title} + 2 ))
+    local title_width
+    local inner_width
     local horizontal
 
+    title_width="$(string_display_width "$title")"
+    inner_width=$(( title_width + 2 ))
     horizontal="$(printf '%*s' "$inner_width" '' | tr ' ' '━')"
     echo -e "${border_color}┏${horizontal}┓${RESET}"
     echo -e "${border_color}┃${RESET} ${title_color}${title}${RESET} ${border_color}┃${RESET}"

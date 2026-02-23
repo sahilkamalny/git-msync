@@ -30,9 +30,9 @@ EOF
     elif command -v konsole >/dev/null 2>&1; then
         konsole -e bash "$launcher"
     elif command -v guake >/dev/null 2>&1; then
-        guake -e "bash \"$launcher\""
+        guake -e "bash $(printf '%q' "$launcher")"
     elif command -v terminator >/dev/null 2>&1; then
-        terminator -e "bash \"$launcher\""
+        terminator -e "bash $(printf '%q' "$launcher")"
     elif command -v xterm >/dev/null 2>&1; then
         xterm -e bash "$launcher"
     else
