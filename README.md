@@ -13,7 +13,7 @@
 
 **Run modes:** `gh-msync` · `gh msync` (GitHub CLI extension)
 
-**Proof points:** CI on macOS + Windows (Git Bash) + Linux (Ubuntu + pinned distro matrix) · non-destructive repo-local test suite · Homebrew + `gh` extension support
+**Proof points:** CI on macOS + Windows (Git Bash) + Linux (Ubuntu + pinned distro matrix) · repo-local, non-destructive test suite · Homebrew + `gh` extension support
 
 **Quality gates:** `shellcheck` · `shfmt` · `actionlint` · `markdownlint` · `typos`
 
