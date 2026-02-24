@@ -7,8 +7,11 @@ This checklist is for publishing a new tagged release and keeping the Homebrew f
 1. Ensure the working tree is clean (`git status`).
 2. Run the full local suite:
    - `tests/run-all.sh --require-shellcheck`
-3. Review README changes (install/uninstall docs, flags, examples) for accuracy.
-4. If CLI UX changed, update demo assets (`assets/demo.tape`, `assets/demo.gif`) if needed.
+3. Update `CHANGELOG.md`:
+   - add or finalize the `Unreleased` entry for the release
+   - add a tagged section (for example `## [v1.0.1] - YYYY-MM-DD`)
+4. Review README changes (install/uninstall docs, flags, examples) for accuracy.
+5. If CLI UX changed, update demo assets (`assets/demo.tape`, `assets/demo.gif`) if needed.
 
 ## Version/tag preparation
 
@@ -22,7 +25,7 @@ This checklist is for publishing a new tagged release and keeping the Homebrew f
 2. Create and push the tag:
    - `git tag vX.Y.Z`
    - `git push origin vX.Y.Z`
-3. Create the GitHub release (notes/changelog) for that tag.
+3. Create or rewrite the GitHub release notes for that tag using the matching `CHANGELOG.md` entry.
 
 ## Update Homebrew formula SHA
 
@@ -42,7 +45,7 @@ After the GitHub tag archive is available:
    - Extension mode: `gh extension install sahilkamalny/gh-msync`
 2. Confirm:
    - `gh-msync --help` shows expected flags
-   - `gh-msync --install-integrations` / `--uninstall-integrations` work
+   - `gh-msync --install-launcher` / `--uninstall-launcher` work (long forms `--install-integrations` / `--uninstall-integrations` still supported)
    - README commands/examples still match behavior
 3. Push the formula update commit (if the formula lives in this repo/tap workflow for your release process).
 

@@ -219,11 +219,11 @@ Paths are saved to `~/.config/gh-msync/config`. Extension equivalent: replace `g
 ### Desktop app / launcher integrations (all install methods)
 
 ```bash
-gh-msync --install-integrations
-gh-msync --uninstall-integrations
-# explicit aliases (same launcher/app-only behavior)
 gh-msync --install-launcher
 gh-msync --uninstall-launcher
+# long-form compatibility aliases (same launcher/app-only behavior)
+gh-msync --install-integrations
+gh-msync --uninstall-integrations
 ```
 
 Extension equivalents: replace `gh-msync` with `gh msync`.
@@ -382,6 +382,7 @@ The from-source uninstaller removes the `gh-msync` symlink, PATH injection (if i
 | `macOS-Uninstall.command` / `Linux-Uninstall.sh` | Entry points → run `scripts/uninstall.sh`. |
 | `packaging/homebrew/gh-msync.rb` | Homebrew formula (installs the binary + helper scripts, and auto-installs shared launcher integrations). |
 | `COMPATIBILITY.md` | Platform support tiers, CI coverage scope, and compatibility roadmap. |
+| `CHANGELOG.md` | Release history (`Unreleased` + tagged summaries) including cross-platform/CI hardening notes. |
 | `.markdownlint-cli2.yaml` | Markdown lint configuration (allows inline HTML/long lines used in README presentation). |
 | `.typos.toml` | Spelling lint configuration (project-specific allowed words/exclusions). |
 | `RELEASING.md` | Release checklist for tags/tarballs/Homebrew formula updates and final verification. |
@@ -423,7 +424,7 @@ The from-source uninstaller removes the `gh-msync` symlink, PATH injection (if i
 
 Pull requests and issues are welcome.
 
-Before opening a PR, run `tests/run-all.sh` locally. For release steps (tagging, Homebrew formula SHA updates, final verification), see `RELEASING.md`.
+Before opening a PR, run `tests/run-all.sh` locally. For release steps (tagging, release notes, Homebrew formula SHA updates, final verification), see `RELEASING.md` and `CHANGELOG.md`.
 
 ---
 

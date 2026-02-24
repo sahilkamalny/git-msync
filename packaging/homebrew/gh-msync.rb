@@ -29,7 +29,7 @@ class GhMsync < Formula
 
     helper = libexec/"system-integrations.sh"
     if helper.exist? && !quiet_system(helper, "install", "--quiet", "--preferred-script", bin/"gh-msync")
-      opoo "Could not install GitHub Multi-Sync launcher integrations automatically. Run `gh-msync --install-integrations` manually."
+      opoo "Could not install GitHub Multi-Sync launcher integrations automatically. Run `gh-msync --install-launcher` manually."
     end
   end
 
@@ -53,7 +53,7 @@ class GhMsync < Formula
       brew uninstall gh-msync
 
     Also remove the shared macOS/Linux app launcher integrations (same across install methods):
-      gh-msync --uninstall-integrations
+      gh-msync --uninstall-launcher
 
     Optional full user-data cleanup after that:
       rm -rf ~/.config/gh-msync
