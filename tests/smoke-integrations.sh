@@ -106,6 +106,13 @@ if [ "$OS" = "Darwin" ]; then
     assert_contains "$OSACOMPILE_LOG1" 'do script "bash \"'
     assert_not_contains "$OSACOMPILE_LOG1" 'do script "exec bash'
     # shellcheck disable=SC2016 # Intentional literal pattern match against generated wrapper content.
+    assert_contains \
+        "$HOME1/Applications/GitHub Multi-Sync.app/Contents/Resources/run.sh" \
+        'osascript -e "tell application \\"Terminal\\" to close (every window whose id is $WIN_ID) saving no"'
+    assert_not_contains \
+        "$HOME1/Applications/GitHub Multi-Sync.app/Contents/Resources/run.sh" \
+        'nohup bash -c "sleep 0.1; osascript -e'
+    # shellcheck disable=SC2016 # Intentional literal pattern match against generated wrapper content.
     assert_line_order \
         "$HOME1/Applications/GitHub Multi-Sync.app/Contents/Resources/run.sh" \
         'read -r -p "Press [Enter] to exit..."' \
