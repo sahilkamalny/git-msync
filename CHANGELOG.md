@@ -4,8 +4,17 @@ All notable changes to `gh-msync` will be documented in this file.
 
 ## [Unreleased]
 
+- No changes yet.
+
+## [v1.0.0] - 2026-02-24
+
 ### Added
 
+- Initial public release of `gh-msync` (GitHub Multi-Sync).
+- Parallel multi-repository sync workflow for local GitHub repo roots.
+- Interactive configuration flow and CLI usage mode.
+- Optional GitHub CLI extension entrypoint (`gh msync`).
+- Homebrew formula packaging and from-source installer/uninstaller scripts.
 - Cross-platform CI and verification coverage:
   - GitHub Actions CI on macOS, Windows (Git Bash), and Linux (`ubuntu-latest`)
   - Pinned Linux compatibility matrix (`debian-12`, `fedora-41`, `alpine-3.20`)
@@ -30,17 +39,3 @@ All notable changes to `gh-msync` will be documented in this file.
 - macOS app Enter-to-close behavior and Terminal window close flow.
 - Linux wrapper terminal detection and compatibility across a wider emulator set.
 - Test portability issues across macOS/BSD vs GNU/Linux and Linux distro/container environments.
-
-## [v1.0.0] - 2026-02-23
-
-### Added
-
-- Initial public release of `gh-msync` (GitHub Multi-Sync).
-- Parallel multi-repository sync workflow for local GitHub repo roots.
-- Interactive configuration flow and CLI usage mode.
-- Optional GitHub CLI extension entrypoint (`gh msync`).
-- Homebrew formula packaging and from-source installer/uninstaller scripts.
-
-### Notes
-
-- Subsequent cross-platform CI, test-suite, and compatibility hardening landed after `v1.0.0` and is tracked in the `Unreleased` section above.
