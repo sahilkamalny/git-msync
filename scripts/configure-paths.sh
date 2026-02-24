@@ -316,8 +316,8 @@ if [ "$QUIET" -eq 0 ]; then
         echo -e "    \033[1;34m∘\033[0m $HOME/GitHub (default)"
     fi
     echo ""
-    echo -e "    \033[1;32m✓  Configuration saved to \033[4m$CONFIG_FILE\033[24m\033[0m"
+    echo -e "    \033[1;32m✓\033[0m  (Configuration saved to \033[4m$CONFIG_FILE\033[24m)"
     echo ""
-    echo -e "    Run \033[1mgh-msync\033[0m to sync these repositories."
+    echo -e "    Run \033[1;36mgh-msync\033[0m to sync these repositories."
     echo ""
 fi
