@@ -94,7 +94,7 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 2. **Run:** `gh-msync` (or `gh msync` in extension mode).
 3. **Configure paths (optional):** `gh-msync --configure` (or `gh msync --configure`).
 
-Desktop integrations (all install methods): the macOS app / Linux launcher is auto-created on the first interactive run, or created explicitly with `--install-integrations`.
+Desktop integrations (optional app/launcher only, all install methods): the macOS app / Linux launcher is auto-created on the first interactive run, or managed explicitly with `--install` / `--uninstall` (aliases for `--install-integrations` / `--uninstall-integrations`).
 
 Command by install method:
 
@@ -114,9 +114,10 @@ For install-method details (PATH, launcher behavior, uninstall), see [Installati
 
 The macOS app (`~/Applications/GitHub Multi-Sync.app`) and Linux launcher (`~/.local/share/applications/gh-msync.desktop`) behave the same across install methods:
 
+- These commands manage the optional app/launcher only (they do **not** run the full from-source installer/uninstaller scripts).
 - They are auto-created on the first interactive run.
-- You can create/update them manually with `gh-msync --install-integrations` (or `gh msync --install-integrations`).
-- You can remove them with `gh-msync --uninstall-integrations` (or `gh msync --uninstall-integrations`).
+- You can create/update them manually with `gh-msync --install` (or `gh msync --install`; long form: `--install-integrations`).
+- You can remove them with `gh-msync --uninstall` (or `gh msync --uninstall`; long form: `--uninstall-integrations`).
 
 ### Option A: Homebrew (macOS & Linux, recommended when available)
 
@@ -140,7 +141,7 @@ Notes:
 - If `gh-msync` is not found immediately after install, initialize your shell with `brew shellenv`.
 - Creates a default config at `~/.config/gh-msync/config` with `~/GitHub` if it does not exist.
 - Supports the same GUI/CLI path picker as other install methods via `gh-msync --configure`.
-- Auto-installs the same shared macOS/Linux launcher integrations (and supports `--install-integrations` / `--uninstall-integrations`).
+- Auto-installs the same shared macOS/Linux launcher integrations (and supports `--install` / `--uninstall`, plus long forms `--install-integrations` / `--uninstall-integrations`).
 - `gh` is optional; install/login only if you want missing-repository cloning prompts or extension mode (`gh msync`).
 
 ### Option B: From source (all platforms)
@@ -174,7 +175,7 @@ Run it as:
 gh msync
 ```
 
-Extension mode uses the same core script and supports the same flags (for example `gh msync --configure`, `gh msync --cli`, `gh msync --install-integrations`, `gh msync --uninstall-integrations`). It does **not** install a standalone `gh-msync` binary on your `PATH`.
+Extension mode uses the same core script and supports the same flags (for example `gh msync --configure`, `gh msync --cli`, `gh msync --install`, `gh msync --uninstall`; long forms also work). It does **not** install a standalone `gh-msync` binary on your `PATH`.
 
 ---
 
@@ -216,6 +217,9 @@ Paths are saved to `~/.config/gh-msync/config`. Extension equivalent: replace `g
 ```bash
 gh-msync --install-integrations
 gh-msync --uninstall-integrations
+# short aliases (same launcher/app-only behavior)
+gh-msync --install
+gh-msync --uninstall
 ```
 
 Extension equivalents: replace `gh-msync` with `gh msync`.
@@ -317,12 +321,12 @@ Cleanup depends on install method, but macOS/Linux launcher cleanup is shared ac
 Before removing the package/extension (while the command still exists), remove shared launcher integrations if you want full UI cleanup:
 
 ```bash
-gh-msync --uninstall-integrations
+gh-msync --uninstall
 # or (extension mode)
-gh msync --uninstall-integrations
+gh msync --uninstall
 ```
 
-Removes the macOS app and/or Linux launcher plus related desktop artifacts.
+Removes the macOS app and/or Linux launcher plus related desktop artifacts only (not the full `gh-msync` install).
 
 ### Homebrew installs
 
@@ -401,7 +405,7 @@ The from-source uninstaller removes the `gh-msync` symlink, PATH injection (if i
   Install and log in to the GitHub CLI: `brew install gh && gh auth login`. `gh-msync` uses it to list and clone missing repos.
 
 - **macOS app / Linux launcher missing**  
-  Run `gh-msync --install-integrations` (or `gh msync --install-integrations`) to create/refresh shared launcher integrations.
+  Run `gh-msync --install` (or `gh msync --install`; long form `--install-integrations`) to create/refresh shared launcher integrations.
 
 - **SSH errors**  
   SSH is optional. Configure a GitHub SSH key and keep the default behavior, or use `gh-msync --no-ssh-upgrade` (or `GH_MSYNC_NO_SSH_UPGRADE=1`) to keep HTTPS remotes/clones.

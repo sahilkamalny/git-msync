@@ -23,6 +23,7 @@ scenario_arg_parsing() {
     scripts/gh-msync --help >"$out"
     assert_file_contains "$out" "Usage: gh-msync"
     assert_file_contains "$out" "--ssh-upgrade"
+    assert_file_contains "$out" "--install, --install-integrations"
     pass "help output renders expected core flags"
 
     out="$TMP_ROOT/unknown.txt"
@@ -36,12 +37,46 @@ scenario_arg_parsing() {
 
     out="$TMP_ROOT/mutually-exclusive.txt"
     set +e
-    scripts/gh-msync --install-integrations --uninstall-integrations >"$out" 2>&1
+    scripts/gh-msync --install --uninstall-integrations >"$out" 2>&1
     status=$?
     set -e
     assert_status "$status" 2
     assert_file_contains "$out" "choose only one"
     pass "mutually exclusive integration flags are rejected"
+}
+
+scenario_integration_alias_dispatch() {
+    local app_dir home_dir out status
+
+    app_dir="$TMP_ROOT/integration-alias-dispatch"
+    home_dir="$TMP_ROOT/home-integration-alias-dispatch"
+    mkdir -p "$app_dir/scripts" "$home_dir"
+    cp "$REPO_DIR/scripts/gh-msync" "$app_dir/scripts/gh-msync"
+
+    cat >"$app_dir/scripts/system-integrations.sh" <<'EOF_INTSTUB'
+#!/bin/bash
+set -euo pipefail
+printf '%s\n' "$*" > "${HOME}/integrations-helper-args.log"
+EOF_INTSTUB
+    chmod +x "$app_dir/scripts/system-integrations.sh"
+
+    out="$TMP_ROOT/integration-install-alias.txt"
+    set +e
+    HOME="$home_dir" "$app_dir/scripts/gh-msync" --install >"$out" 2>&1
+    status=$?
+    set -e
+    assert_status "$status" 0
+    assert_file_contains "$home_dir/integrations-helper-args.log" "install"
+    pass "gh-msync --install dispatches to shared integrations helper"
+
+    out="$TMP_ROOT/integration-uninstall-alias.txt"
+    set +e
+    HOME="$home_dir" "$app_dir/scripts/gh-msync" --uninstall >"$out" 2>&1
+    status=$?
+    set -e
+    assert_status "$status" 0
+    assert_file_contains "$home_dir/integrations-helper-args.log" "uninstall"
+    pass "gh-msync --uninstall dispatches to shared integrations helper"
 }
 
 scenario_config_and_no_repo_handling() {
@@ -417,6 +452,7 @@ EOF_GHCLONESTUB
 }
 
 scenario_arg_parsing
+scenario_integration_alias_dispatch
 scenario_config_and_no_repo_handling
 scenario_configure_dispatch
 scenario_stubbed_sync_logic
