@@ -44,6 +44,14 @@ assert_contains() {
     grep -Fq "$text" "$file" || fail "expected '$text' in $file"
 }
 
+assert_not_contains() {
+    local file="$1"
+    local text="$2"
+    if grep -Fq "$text" "$file"; then
+        fail "did not expect '$text' in $file"
+    fi
+}
+
 assert_line_order() {
     local file="$1"
     local first="$2"
@@ -63,6 +71,11 @@ make_osacompile_stub() {
     cat >"$dir/osacompile" <<'EOS'
 #!/bin/bash
 out=""
+if [ -n "${GH_MSYNC_OSACOMPILE_STUB_LOG:-}" ]; then
+    for arg in "$@"; do
+        printf '%s\n' "$arg" >> "$GH_MSYNC_OSACOMPILE_STUB_LOG"
+    done
+fi
 while [ $# -gt 0 ]; do
     if [ "$1" = "-o" ] && [ $# -ge 2 ]; then
         out="$2"
@@ -81,13 +94,17 @@ EOS
 # Scenario 1: core command installs integrations into temp HOME.
 HOME1="$TMP_ROOT/home1"
 STUB1="$TMP_ROOT/stub1"
+OSACOMPILE_LOG1="$TMP_ROOT/osacompile-args.log"
 mkdir -p "$HOME1" "$STUB1"
+: >"$OSACOMPILE_LOG1"
 make_osacompile_stub "$STUB1"
-HOME="$HOME1" PATH="$STUB1:$BASE_PATH" "$REPO_DIR/scripts/gh-msync" --install-integrations >/dev/null 2>&1 || fail "core --install-integrations failed"
+HOME="$HOME1" PATH="$STUB1:$BASE_PATH" GH_MSYNC_OSACOMPILE_STUB_LOG="$OSACOMPILE_LOG1" "$REPO_DIR/scripts/gh-msync" --install-integrations >/dev/null 2>&1 || fail "core --install-integrations failed"
 assert_exists "$HOME1/.config/gh-msync/integrations/launch.sh"
 assert_contains "$HOME1/.config/gh-msync/integrations/launch.sh" "$REPO_DIR/scripts/gh-msync"
 if [ "$OS" = "Darwin" ]; then
     assert_exists "$HOME1/Applications/GitHub Multi-Sync.app/Contents/Resources/run.sh"
+    assert_contains "$OSACOMPILE_LOG1" 'do script "bash \"'
+    assert_not_contains "$OSACOMPILE_LOG1" 'do script "exec bash'
     # shellcheck disable=SC2016 # Intentional literal pattern match against generated wrapper content.
     assert_line_order \
         "$HOME1/Applications/GitHub Multi-Sync.app/Contents/Resources/run.sh" \
