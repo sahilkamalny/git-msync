@@ -18,7 +18,7 @@ cd "$REPO_DIR"
 shell_files=()
 while IFS= read -r file; do
     case "$file" in
-        *.sh|*.command|gh-msync|scripts/gh-msync|tests/*)
+        *.sh|*.command|gh-msync)
             shell_files+=("$file")
             ;;
     esac

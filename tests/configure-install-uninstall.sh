@@ -58,7 +58,7 @@ scenario_install_uninstall_lifecycle() {
     out="$TMP_ROOT/install-uninstall-output.txt"
     install_log="$TMP_ROOT/configure-install.log"
     integrations_log="$TMP_ROOT/integrations.log"
-    path_line='export PATH="$HOME/.local/bin:$PATH"'
+    path_line="export PATH=\"\$HOME/.local/bin:\$PATH\""
 
     mkdir -p "$repo_copy/scripts" "$home_dir" "$stub_bin"
 
