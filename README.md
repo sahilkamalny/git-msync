@@ -24,11 +24,11 @@
 ---
 
 <div align="center">
-  <img src="assets/demo.gif" width="800" alt="GitHub Multi-Sync Terminal Demo" />
+  <img src="assets/demo.gif" alt="GitHub Multi-Sync Terminal Demo" />
 </div>
 
 <p align="center">
-  Demo: one command scans configured roots, syncs repositories in parallel, reports per-repo outcomes, and clones missing repos to configured roots.
+  <strong>Demo:</strong> One command scans configured roots, syncs repositories in parallel, reports per-repo outcomes, and clones missing repos to configured roots.
 </p>
 
 ---
